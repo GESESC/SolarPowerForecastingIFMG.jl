@@ -1,0 +1,4 @@
+name = "SolarPowerForecastingIFMG"
+uuid = "324c0b22-a149-4aa4-8e58-0d2d69aac616"
+authors = ["ProfLeao <prof.reginaldo.leao@gmail.com>"]
+version = "0.1.0"
