@@ -69,5 +69,21 @@ function statusINMET()
     return series
 end
 
-#resp = statusINMET();
-#@show resp
+"""
+Recebe dois vetores, o primeiro com a lista das cidades a serem estudadas e o
+segundo, com a lista dos anos a serem estudados ou um UnitRang com o intervalo
+de estudo.
+"""
+function obter_dados(
+    fonte_dados{Dict{Int16, String}}, 
+    cidades{Vector{String}}, 
+    intervtemp{Vector{Int}}
+    )
+    try:
+        
+end
+
+function obter_dados(cidades{Vector{String}}, intervtemp{UnitRange})
+    try:
+
+end 
