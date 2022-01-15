@@ -75,9 +75,10 @@ function statusINMET()
 end
 
 """
-Recebe dois vetores, o primeiro com a lista das cidades a serem estudadas e o
-segundo, com a lista dos anos a serem estudados ou um UnitRang com o intervalo
-de estudo.
+Recebe um dicionário com chaves do tipo Int16, contendo o ano de uma determinada 
+série histórica do INMET e uma String com o link de download da série no 
+servidor dois vetores, uma lista das cidades a serem estudadas e outra com a 
+lista dos anos a serem estudados ou um UnitRang com este intervalo de estudo.
 """
 function obter_dados(
     fonte_dados::Dict{Int16, String}, 
@@ -141,12 +142,15 @@ function obter_dados(
             =#
 
             # Manipulação dos arquivos
-            Dowloads.dowload(fonte_dados[ano])
+            Downloads.download(fonte_dados[ano])
             arquivo_zip = readdir()[1]
-            zip_lido = ZipFiles.Reader(arquivo_zip)                        
+            zip_lido = ZipFile.Reader(arquivo_zip)                        
             for cid in cidades
                 for arq in zip_lido.files
-                    if occursin(Regex("$(cid)"), arq.name)
+                    if occursin(
+                        Regex("$(lowercase(cid))"), 
+                        lowercase(arq.name)
+                    )
                         #= 
                         Os DataFrames estão sendo armazenados completamente na
                         memória, no futuro conseguir uma forma de excluir as 
