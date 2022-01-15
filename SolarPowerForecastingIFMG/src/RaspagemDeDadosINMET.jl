@@ -101,7 +101,10 @@ function obter_dados(
             zip_lido = ZipFile.Reader(arquivo_zip)                        
             for cid in cidades
                 for arq in zip_lido.files
-                    if occursin(Regex("$(cid)"), arq.name)
+                    if occursin(
+                        Regex("$(lowercase(cid))"), 
+                        lowercase(arq.name)
+                    )
                         #= 
                         Os DataFrames estão sendo armazenados completamente na
                         memória, no futuro conseguir uma forma de excluir as 
@@ -116,7 +119,7 @@ function obter_dados(
         rm("*.zip")
         return dados_cidades
     catch
-        error("Parâmetros inválidos! ")
+        #error("Parâmetros inválidos! ")
          
     end
 end
