@@ -1,4 +1,9 @@
-using HTTP, Gumbo, Downloads, ZipFile, CSV
+using HTTP 
+using Gumbo
+using Downloads
+using ZipFile
+using CSV 
+using DataFrames
 
 
 """
@@ -81,7 +86,7 @@ function obter_dados(
 )
     try
         # Aramazenamento na memória - scopo da função
-        dados_cidades = Dict{DataFrames}
+        dados_cidades = Dict{String, DataFrame}()
         for ano in intervtemp
 
             #= Manutenção de diretórios, caso seja interessante criar subpastas
@@ -121,37 +126,38 @@ function obter_dados(
     cidades::Vector{String}, 
     intervtemp::UnitRange
 )
-try
-    # Aramazenamento na memória - scopo da função
-    dados_cidades = Dict{DataFrames}()
-    for ano in intervtemp
+    try
+        # Aramazenamento na memória - scopo da função
+        dados_cidades = Dict{String, DataFrame}()
+        for ano in intervtemp
 
-        #= Manutenção de diretórios, caso seja interessante criar subpastas
-            diretorio = string("Dir", ano)
-            mkdir(diretorio)
-            cd(diretorio)
-        =#
+            #= Manutenção de diretórios, caso seja interessante criar subpastas
+                diretorio = string("Dir", ano)
+                mkdir(diretorio)
+                cd(diretorio)
+            =#
 
-        # Manipulação dos arquivos
-        Dowloads.dowload(fonte_dados[ano])
-        arquivo_zip = readdir()[1]
-        zip_lido = ZipFiles.Reader(arquivo_zip)                        
-        for cid in cidades
-            for arq in zip_lido.files
-                if occursin(Regex("$(cid)"), arq.name)
-                    #= 
-                    Os DataFrames estão sendo armazenados completamente na
-                    memória, no futuro conseguir uma forma de excluir as 
-                    séries que não são de interesse para o modelo. 
-                    =#
-                    dados_cidades[cid] = CSV.read(arq, DataFrame)
+            # Manipulação dos arquivos
+            Dowloads.dowload(fonte_dados[ano])
+            arquivo_zip = readdir()[1]
+            zip_lido = ZipFiles.Reader(arquivo_zip)                        
+            for cid in cidades
+                for arq in zip_lido.files
+                    if occursin(Regex("$(cid)"), arq.name)
+                        #= 
+                        Os DataFrames estão sendo armazenados completamente na
+                        memória, no futuro conseguir uma forma de excluir as 
+                        séries que não são de interesse para o modelo. 
+                        =#
+                        dados_cidades[cid] = CSV.read(arq, DataFrame)
+                    end
                 end
             end
+            close(zip_lido)
         end
-        close(zip_lido)
+        rm("*.zip")
+        return dados_cidades
+    catch
+        error("Parâmetros inválidos!")
     end
-    rm("*.zip")
-    return dados_cidades
-catch
-    error("Parâmetros inválidos!")
-end 
+end
