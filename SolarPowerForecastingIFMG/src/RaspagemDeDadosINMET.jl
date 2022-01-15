@@ -123,7 +123,7 @@ function obter_dados(
 )
 try
     # Aramazenamento na memória - scopo da função
-    dados_cidades = Dict{DataFrames}
+    dados_cidades = Dict{DataFrames}()
     for ano in intervtemp
 
         #= Manutenção de diretórios, caso seja interessante criar subpastas
