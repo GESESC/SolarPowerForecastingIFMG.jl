@@ -75,9 +75,9 @@ segundo, com a lista dos anos a serem estudados ou um UnitRang com o intervalo
 de estudo.
 """
 function obter_dados(
-    fonte_dados{Dict{Int16, String}}, 
-    cidades{Vector{String}}, 
-    intervtemp{Vector{Int}}
+    fonte_dados::Dict{Int16, String}, 
+    cidades::Vector{String}, 
+    intervtemp::Vector{Int}
 )
     try
         # Aramazenamento na memória - scopo da função
@@ -117,9 +117,9 @@ function obter_dados(
 end
 
 function obter_dados(
-    fonte_dados{Dict{Int16, String}},
-    cidades{Vector{String}}, 
-    intervtemp{UnitRange}
+    fonte_dados::Dict{Int16, String},
+    cidades::Vector{String}, 
+    intervtemp::UnitRange
 )
 try
     # Aramazenamento na memória - scopo da função
