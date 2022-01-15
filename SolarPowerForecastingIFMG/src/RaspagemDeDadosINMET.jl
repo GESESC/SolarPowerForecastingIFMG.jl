@@ -1,4 +1,4 @@
-using HTTP, Gumbo, Downloads, ZipFiles, CSV
+using HTTP, Gumbo, Downloads, ZipFile, CSV
 
 
 """
@@ -93,7 +93,7 @@ function obter_dados(
             # Manipulação dos arquivos
             Dowloads.dowload(fonte_dados[ano])
             arquivo_zip = readdir()[1]
-            zip_lido = ZipFiles.Reader(arquivo_zip)                        
+            zip_lido = ZipFile.Reader(arquivo_zip)                        
             for cid in cidades
                 for arq in zip_lido.files
                     if occursin(Regex("$(cid)"), arq.name)
