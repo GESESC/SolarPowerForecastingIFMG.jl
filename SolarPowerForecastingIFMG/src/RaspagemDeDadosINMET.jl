@@ -5,6 +5,14 @@ using ZipFile
 using CSV 
 using DataFrames
 
+struct EstruturaDeCaptura
+    cidade::Union{String, Nothing}
+    ano::Union{Int, String, Nothing}
+    dataset::Union{DataFrame, Nothing}
+end
+struct SerieCidades 
+    serie::AbstractVector{EstruturaDeCaptura}
+end
 
 """
 Realiza uma requisição http ao portal do inmet no recurso /dadoshistoricos, 
@@ -87,7 +95,17 @@ function obter_dados(
 )
     try
         # Aramazenamento na memória - scopo da função
-        dados_cidades = Dict{String, DataFrame}()
+        dados_cidades = SerieCidades(
+            fill(
+                EstruturaDeCaptura(
+                    nothing, 
+                    nothing, 
+                    nothing
+                ), length(intervtemp) * length(cidades)
+            )
+        )
+
+        contador = 1
         for ano in intervtemp
 
             #= Manutenção de diretórios, caso seja interessante criar subpastas
@@ -111,7 +129,13 @@ function obter_dados(
                         memória, no futuro conseguir uma forma de excluir as 
                         séries que não são de interesse para o modelo. 
                         =#
-                        dados_cidades[cid] = CSV.read(arq, DataFrame)
+                        dados_cidades[contador].cidade = cid
+                        dados_cidades[contador].ano = ano
+                        dados_cidades[contador].dataset = CSV.read(
+                            arq, 
+                            DataFrame
+                        )
+                        contador+=1
                     end
                 end
             end
@@ -120,7 +144,7 @@ function obter_dados(
         rm("*.zip")
         return dados_cidades
     catch
-        #error("Parâmetros inválidos! ")
+        error("Parâmetros inválidos! ")
          
     end
 end
@@ -132,7 +156,17 @@ function obter_dados(
 )
     try
         # Aramazenamento na memória - scopo da função
-        dados_cidades = Dict{String, DataFrame}()
+        dados_cidades = SerieCidades(
+            fill(
+                EstruturaDeCaptura(
+                    nothing, 
+                    nothing, 
+                    nothing
+                ), length(intervtemp) * length(cidades)
+            )
+        )
+
+        contador = 1
         for ano in intervtemp
 
             #= Manutenção de diretórios, caso seja interessante criar subpastas
@@ -142,7 +176,7 @@ function obter_dados(
             =#
 
             # Manipulação dos arquivos
-            Downloads.download(fonte_dados[ano])
+            Dowloads.dowload(fonte_dados[ano])
             arquivo_zip = readdir()[1]
             zip_lido = ZipFile.Reader(arquivo_zip)                        
             for cid in cidades
@@ -156,7 +190,14 @@ function obter_dados(
                         memória, no futuro conseguir uma forma de excluir as 
                         séries que não são de interesse para o modelo. 
                         =#
-                        dados_cidades[cid] = CSV.read(arq, DataFrame)
+                        dados_cidades[contador].cidade = cid
+                        dados_cidades[contador].ano = ano
+                        dados_cidades[contador].dataset = CSV.read(
+                            arq, 
+                            DataFrame
+                        )
+                        println(dados_cidades[contador])
+                        contador+=1
                     end
                 end
             end
@@ -165,6 +206,8 @@ function obter_dados(
         rm("*.zip")
         return dados_cidades
     catch
-        error("Parâmetros inválidos!")
+        error("Parâmetros inválidos! ")
+        
     end
 end
+
