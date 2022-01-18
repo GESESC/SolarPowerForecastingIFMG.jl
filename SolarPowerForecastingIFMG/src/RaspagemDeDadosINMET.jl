@@ -4,13 +4,14 @@ using Downloads
 using ZipFile
 using CSV 
 using DataFrames
+using ProgressBars
 
-struct EstruturaDeCaptura
+mutable struct EstruturaDeCaptura
     cidade::Union{String, Nothing}
     ano::Union{Int, String, Nothing}
     dataset::Union{DataFrame, Nothing}
 end
-struct SerieCidades 
+mutable struct SerieCidades 
     serie::AbstractVector{EstruturaDeCaptura}
 end
 
@@ -115,23 +116,23 @@ function obter_dados(
             =#
 
             # Manipulação dos arquivos
-            Dowloads.dowload(fonte_dados[ano])
-            arquivo_zip = readdir()[1]
+            Downloads.download(fonte_dados[ano], "$ano")
+            arquivo_zip = filter(
+                nome_test::String -> occursin(string(ano), nome_test),
+                readdir()
+            )[1]
             zip_lido = ZipFile.Reader(arquivo_zip)                        
             for cid in cidades
                 for arq in zip_lido.files
-                    if occursin(
-                        Regex("$(lowercase(cid))"), 
-                        lowercase(arq.name)
-                    )
+                    if occursin("$(lowercase(cid))", lowercase(arq.name))
                         #= 
                         Os DataFrames estão sendo armazenados completamente na
                         memória, no futuro conseguir uma forma de excluir as 
                         séries que não são de interesse para o modelo. 
                         =#
-                        dados_cidades[contador].cidade = cid
-                        dados_cidades[contador].ano = ano
-                        dados_cidades[contador].dataset = CSV.read(
+                        dados_cidades.serie[contador].cidade = cid
+                        dados_cidades.serie[contador].ano = ano
+                        dados_cidades.serie[contador].dataset = CSV.read(
                             arq, 
                             DataFrame
                         )
@@ -141,7 +142,7 @@ function obter_dados(
             end
             close(zip_lido)
         end
-        rm("*.zip")
+        #rm("*.zip")
         return dados_cidades
     catch
         error("Parâmetros inválidos! ")
@@ -176,34 +177,38 @@ function obter_dados(
             =#
 
             # Manipulação dos arquivos
-            Dowloads.dowload(fonte_dados[ano])
-            arquivo_zip = readdir()[1]
+            Downloads.download(fonte_dados[ano], "$ano")
+
+            
+            arquivo_zip = filter(
+                nome_test::String -> occursin(string(ano), nome_test),
+                readdir()
+            )[1]
             zip_lido = ZipFile.Reader(arquivo_zip)                        
             for cid in cidades
                 for arq in zip_lido.files
-                    if occursin(
-                        Regex("$(lowercase(cid))"), 
-                        lowercase(arq.name)
-                    )
+                    println("$(lowercase(cid))", lowercase(arq.name))
+                    if occursin("$(lowercase(cid))", lowercase(arq.name))
                         #= 
                         Os DataFrames estão sendo armazenados completamente na
                         memória, no futuro conseguir uma forma de excluir as 
                         séries que não são de interesse para o modelo. 
                         =#
-                        dados_cidades[contador].cidade = cid
-                        dados_cidades[contador].ano = ano
-                        dados_cidades[contador].dataset = CSV.read(
+                        println("due match")
+                        dados_cidades.serie[contador].cidade = cid
+                        dados_cidades.serie[contador].ano = ano
+                        dados_cidades.serie[contador].dataset = CSV.read(
                             arq, 
                             DataFrame
                         )
-                        println(dados_cidades[contador])
+                        #println(dados_cidades.serie[contador])
                         contador+=1
                     end
                 end
             end
             close(zip_lido)
         end
-        rm("*.zip")
+        rm("$ano")
         return dados_cidades
     catch
         error("Parâmetros inválidos! ")
