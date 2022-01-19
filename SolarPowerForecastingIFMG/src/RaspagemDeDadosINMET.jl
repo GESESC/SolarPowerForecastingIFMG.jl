@@ -4,7 +4,7 @@ using Downloads
 using ZipFile
 using CSV 
 using DataFrames
-using ProgressBars
+using Printf
 
 mutable struct EstruturaDeCaptura
     cidade::Union{String, Nothing}
@@ -116,13 +116,22 @@ function obter_dados(
             =#
 
             # Manipulação dos arquivos
-            Downloads.download(fonte_dados[ano], "$ano")
+            Downloads.download(
+                fonte_dados[ano], 
+                "$ano", 
+                progress=(ag::Int, tot::Int) -> @printf(
+                    "Baixando arquivos para o ano %4i : %.2f  \r", 
+                    ano,
+                    (100 - ag/tot)
+                ) 
+            )
             arquivo_zip = filter(
                 nome_test::String -> occursin(string(ano), nome_test),
                 readdir()
             )[1]
             zip_lido = ZipFile.Reader(arquivo_zip)                        
             for cid in cidades
+                pgb = ProgressBar(1:length(zip_lido.files))
                 for arq in zip_lido.files
                     if occursin("$(lowercase(cid))", lowercase(arq.name))
                         #= 
@@ -134,10 +143,12 @@ function obter_dados(
                         dados_cidades.serie[contador].ano = ano
                         dados_cidades.serie[contador].dataset = CSV.read(
                             arq, 
-                            DataFrame
+                            DataFrame,
+                            silencewarnings = true
                         )
                         contador+=1
                     end
+                    println("Processando arquivos de dados de $ano...")
                 end
             end
             close(zip_lido)
@@ -177,7 +188,15 @@ function obter_dados(
             =#
 
             # Manipulação dos arquivos
-            Downloads.download(fonte_dados[ano], "$ano")
+            Downloads.download(
+                fonte_dados[ano], 
+                "$ano", 
+                progress=(ag::Int, tot::Int) -> @printf(
+                    "Baixando arquivos para o ano %4i: %.2f \r", 
+                    ano,
+                    (100 - ag/tot)
+                ) 
+            )
 
             
             arquivo_zip = filter(
@@ -186,20 +205,21 @@ function obter_dados(
             )[1]
             zip_lido = ZipFile.Reader(arquivo_zip)                        
             for cid in cidades
+                pgb = ProgressBar(1:length(zip_lido.files))
                 for arq in zip_lido.files
-                    println("$(lowercase(cid))", lowercase(arq.name))
                     if occursin("$(lowercase(cid))", lowercase(arq.name))
+                        print("Processando o arquivo $(arq.name)...\r")
                         #= 
                         Os DataFrames estão sendo armazenados completamente na
                         memória, no futuro conseguir uma forma de excluir as 
                         séries que não são de interesse para o modelo. 
                         =#
-                        println("due match")
                         dados_cidades.serie[contador].cidade = cid
                         dados_cidades.serie[contador].ano = ano
                         dados_cidades.serie[contador].dataset = CSV.read(
                             arq, 
-                            DataFrame
+                            DataFrame,
+                            silencewarnings = true
                         )
                         #println(dados_cidades.serie[contador])
                         contador+=1
