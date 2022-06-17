@@ -84,10 +84,17 @@ function statusINMET()
 end
 
 """
-Recebe um dicionário com chaves do tipo Int16, contendo o ano de uma determinada 
-série histórica do INMET e uma String com o link de download da série no 
-servidor dois vetores, uma lista das cidades a serem estudadas e outra com a 
-lista dos anos a serem estudados ou um UnitRang com este intervalo de estudo.
+Recebe:
+i) fonte_dados::Dict{Int16, String}: 
+um dicionário com chaves do tipo Int16, contendo o ano de uma determinada série 
+histórica do INMET e uma String com o link de download da série no servidor
+
+ii) cidades::Vector{String}:
+um vetor contendo uma lista das cidades a serem estudadas
+
+iii) [intervtemp::Vector{Int}] ou [intervtemp::UnitRange]: 
+um vetor contendo uma lista dos anos a serem estudados ou um UnitRang com este 
+intervalo de estudo.
 """
 function obter_dados(
     fonte_dados::Dict{Int16, String}, 
