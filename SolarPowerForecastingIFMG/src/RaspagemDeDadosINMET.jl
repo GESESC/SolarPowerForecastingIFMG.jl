@@ -5,6 +5,7 @@ using ZipFile
 using CSV 
 using DataFrames
 using Printf
+using ProgressBars
 
 mutable struct EstruturaDeCaptura
     cidade::Union{String, Nothing}
@@ -85,6 +86,7 @@ end
 
 """
 Recebe:
+
 i) fonte_dados::Dict{Int16, String}: 
 um dicionário com chaves do tipo Int16, contendo o ano de uma determinada série 
 histórica do INMET e uma String com o link de download da série no servidor
@@ -127,7 +129,7 @@ function obter_dados(
                 fonte_dados[ano], 
                 "$ano", 
                 progress=(ag::Int, tot::Int) -> @printf(
-                    "Baixando arquivos para o ano %4i : %.2f  \r", 
+                    "Baixando arquivos para o ano %4i : %3i  \r", 
                     ano,
                     (100 - ag/tot)
                 ) 
@@ -148,11 +150,13 @@ function obter_dados(
                         =#
                         dados_cidades.serie[contador].cidade = cid
                         dados_cidades.serie[contador].ano = ano
-                        dados_cidades.serie[contador].dataset = CSV.read(
+                        dados_cidades.serie[contador].dataset = CSV.File(
                             arq, 
-                            DataFrame,
+                            header = 9,
+                            delim = ';',
+                            decimal = ',',
                             silencewarnings = true
-                        )
+                        ) |> DataFrames.DataFrame
                         contador+=1
                     end
                     println("Processando arquivos de dados de $ano...")
@@ -164,7 +168,6 @@ function obter_dados(
         return dados_cidades
     catch
         error("Parâmetros inválidos! ")
-         
     end
 end
 
@@ -223,11 +226,13 @@ function obter_dados(
                         =#
                         dados_cidades.serie[contador].cidade = cid
                         dados_cidades.serie[contador].ano = ano
-                        dados_cidades.serie[contador].dataset = CSV.read(
+                        dados_cidades.serie[contador].dataset = CSV.File(
                             arq, 
-                            DataFrame,
+                            header = 9,
+                            delim = ';',
+                            decimal = ',',
                             silencewarnings = true
-                        )
+                        ) |> DataFrames.DataFrame
                         #println(dados_cidades.serie[contador])
                         contador+=1
                     end
