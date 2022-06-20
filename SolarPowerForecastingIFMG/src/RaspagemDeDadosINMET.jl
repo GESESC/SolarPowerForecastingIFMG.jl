@@ -137,15 +137,19 @@ function obter_dados(
                 nome_test::String -> occursin(string(ano), nome_test),
                 readdir()
             )[1]
-            zip_lido = ZipFile.Reader(arquivo_zip)                        
+            zip_lido = ZipFile.Reader(arquivo_zip)
             for cid in cidades
+                println("\n Pesquisando cidade $cid")
                 for arq in zip_lido.files
+                    #println("Analisando o arquivo $arq")
                     if occursin("$(lowercase(cid))", lowercase(arq.name))
+                        println("Processando arquivos de dados do $ano para a cidade $cid...")
                         #= 
                         Os DataFrames estão sendo armazenados completamente na
                         memória, no futuro conseguir uma forma de excluir as 
                         séries que não são de interesse para o modelo. 
                         =#
+                        println("Contador: $contador \n Cidade: $cid")
                         dados_cidades.serie[contador].cidade = cid
                         dados_cidades.serie[contador].ano = ano
                         dados_cidades.serie[contador].dataset = CSV.File(
@@ -157,7 +161,6 @@ function obter_dados(
                         ) |> DataFrames.DataFrame
                         contador+=1
                     end
-                    println("Processando arquivos de dados de $ano...")
                 end
             end
             close(zip_lido)
@@ -205,8 +208,6 @@ function obter_dados(
                     (100 - ag/tot)
                 ) 
             )
-
-            
             arquivo_zip = filter(
                 nome_test::String -> occursin(string(ano), nome_test),
                 readdir()
