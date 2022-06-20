@@ -5,7 +5,6 @@ using ZipFile
 using CSV 
 using DataFrames
 using Printf
-using ProgressBars
 
 mutable struct EstruturaDeCaptura
     cidade::Union{String, Nothing}
@@ -140,7 +139,6 @@ function obter_dados(
             )[1]
             zip_lido = ZipFile.Reader(arquivo_zip)                        
             for cid in cidades
-                pgb = ProgressBar(1:length(zip_lido.files))
                 for arq in zip_lido.files
                     if occursin("$(lowercase(cid))", lowercase(arq.name))
                         #= 
@@ -215,7 +213,6 @@ function obter_dados(
             )[1]
             zip_lido = ZipFile.Reader(arquivo_zip)                        
             for cid in cidades
-                pgb = ProgressBar(1:length(zip_lido.files))
                 for arq in zip_lido.files
                     if occursin("$(lowercase(cid))", lowercase(arq.name))
                         print("Processando o arquivo $(arq.name)...\r")
