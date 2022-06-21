@@ -7,12 +7,16 @@ using DataFrames
 using Printf
 
 mutable struct EstruturaDeCaptura
-    cidade::Union{String, Nothing}
-    ano::Union{Int, String, Nothing}
-    dataset::Union{DataFrame, Nothing}
+    cidade::Union{String}
+    ano::Union{Int, String}
+    dataset::Union{DataFrames.DataFrame}
 end
 mutable struct SerieCidades 
-    serie::AbstractVector{EstruturaDeCaptura}
+    serie::AbstractVector{Union{EstruturaDeCaptura, Nothing}}
+    function SerieCidades(num::Int)
+        serie = fill(nothing, num)
+        new(serie)
+    end
 end
 
 """
@@ -104,15 +108,7 @@ function obter_dados(
 )
     try
         # Aramazenamento na memória - scopo da função
-        dados_cidades = SerieCidades(
-            fill(
-                EstruturaDeCaptura(
-                    nothing, 
-                    nothing, 
-                    nothing
-                ), length(intervtemp) * length(cidades)
-            )
-        )
+        dados_cidades = SerieCidades(length(intervtemp) * length(cidades))
 
         contador = 1
         for ano in intervtemp
@@ -124,11 +120,12 @@ function obter_dados(
             =#
 
             # Manipulação dos arquivos
+            iter = ProgressBar(1:100)
             Downloads.download(
                 fonte_dados[ano], 
                 "$ano", 
                 progress=(ag::Int, tot::Int) -> @printf(
-                    "Baixando arquivos para o ano %4i : %3i  \r", 
+                    "Baixando arquivos para o ano %4i: %.2f \r", 
                     ano,
                     (100 - ag/tot)
                 ) 
@@ -139,26 +136,26 @@ function obter_dados(
             )[1]
             zip_lido = ZipFile.Reader(arquivo_zip)
             for cid in cidades
-                println("\n Pesquisando cidade $cid")
                 for arq in zip_lido.files
                     #println("Analisando o arquivo $arq")
                     if occursin("$(lowercase(cid))", lowercase(arq.name))
-                        println("Processando arquivos de dados do $ano para a cidade $cid...")
+                        println("Processando arquivos de dados do ano $ano para a cidade de $cid...\r")
                         #= 
                         Os DataFrames estão sendo armazenados completamente na
                         memória, no futuro conseguir uma forma de excluir as 
                         séries que não são de interesse para o modelo. 
                         =#
-                        println("Contador: $contador \n Cidade: $cid")
-                        dados_cidades.serie[contador].cidade = cid
-                        dados_cidades.serie[contador].ano = ano
-                        dados_cidades.serie[contador].dataset = CSV.File(
-                            arq, 
-                            header = 9,
-                            delim = ';',
-                            decimal = ',',
-                            silencewarnings = true
-                        ) |> DataFrames.DataFrame
+                        dados_cidades.serie[contador] = EstruturaDeCaptura(
+                            cid,
+                            ano, 
+                            CSV.File(
+                                arq, 
+                                header = 9,
+                                delim = ';',
+                                decimal = ',',
+                                silencewarnings = true
+                            ) |> DataFrames.DataFrame
+                        )
                         contador+=1
                     end
                 end
@@ -179,15 +176,7 @@ function obter_dados(
 )
     try
         # Aramazenamento na memória - scopo da função
-        dados_cidades = SerieCidades(
-            fill(
-                EstruturaDeCaptura(
-                    nothing, 
-                    nothing, 
-                    nothing
-                ), length(intervtemp) * length(cidades)
-            )
-        )
+        dados_cidades = SerieCidades(length(intervtemp) * length(cidades))
 
         contador = 1
         for ano in intervtemp
@@ -216,33 +205,33 @@ function obter_dados(
             for cid in cidades
                 for arq in zip_lido.files
                     if occursin("$(lowercase(cid))", lowercase(arq.name))
-                        print("Processando o arquivo $(arq.name)...\r")
+                        println("Processando arquivos de dados do ano $ano para a cidade de $cid...\r")
                         #= 
                         Os DataFrames estão sendo armazenados completamente na
                         memória, no futuro conseguir uma forma de excluir as 
                         séries que não são de interesse para o modelo. 
                         =#
-                        dados_cidades.serie[contador].cidade = cid
-                        dados_cidades.serie[contador].ano = ano
-                        dados_cidades.serie[contador].dataset = CSV.File(
-                            arq, 
-                            header = 9,
-                            delim = ';',
-                            decimal = ',',
-                            silencewarnings = true
-                        ) |> DataFrames.DataFrame
-                        #println(dados_cidades.serie[contador])
+                        dados_cidades.serie[contador] = EstruturaDeCaptura(
+                            cid,
+                            ano, 
+                            CSV.File(
+                                arq, 
+                                header = 9,
+                                delim = ';',
+                                decimal = ',',
+                                silencewarnings = true
+                            ) |> DataFrames.DataFrame
+                        )
                         contador+=1
                     end
                 end
             end
             close(zip_lido)
         end
-        rm("$ano")
+        #rm("$ano")
         return dados_cidades
     catch
         error("Parâmetros inválidos! ")
-        
     end
 end
 
