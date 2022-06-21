@@ -120,7 +120,6 @@ function obter_dados(
             =#
 
             # Manipulação dos arquivos
-            iter = ProgressBar(1:100)
             Downloads.download(
                 fonte_dados[ano], 
                 "$ano", 
