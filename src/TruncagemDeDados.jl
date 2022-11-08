@@ -64,20 +64,27 @@ function trunc_data!(
 )
     if metodo == :torres
         columns_change = Dict(
-            1 => :DATE,
-            2 => :HORA,
-            3 => :ADRAIN,
-            7 => :ADSOLPW,
+            01 => :DATE,
+            02 => :HORA,
+            03 => :ADRAIN,
+            07 => :ADSOLPW,
             10 => :DTMAX_C,
             11 => :DTMIN_C
         )
         for col in columns_change
             rename!(dataset, col)
         end
+        
+        # Trunca o dataset para contemplar apenas as colunas presentes no
+        # dicionário columns_change.
         select!(dataset, collect(values(columns_change)))
+
+        # Lista as datas únicas do dataset
         dates_uniq = unique(select(dataset, :DATE))
+
+        
         for col in values(columns_change)
-            replace!(dataset[:,col],0)
+            replace!(dataset[:,col],0.)
         end
         #índice superior e inferior para truncagem 
         sidx_to_trunc = findfirst(x::Float64->x>0, dataset[:,:ADSOLPW])
