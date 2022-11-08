@@ -13,7 +13,7 @@ Uma estrutura de captura de dados do INMET do tipo SerieCidades
 Retorna:
 i) ser_cid:
 A estrutura de captura com o nome das colunas pertencentes ao dataset interno
-de cada cdiade com a codificaçãod e nome modificada. 
+de cada cidade com a codificação de nome modificada. 
 """
 function ajs_col_names!(ser_cid::SerieCidades)
     columns_change = (
