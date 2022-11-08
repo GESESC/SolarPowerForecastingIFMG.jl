@@ -1,7 +1,7 @@
 using DataFrames
 using SolarPowerForecastingIFMG.RaspagemDeDadosINMET
 using Missings
-#using Missings
+
 """
 Corrige a codificação de nomes de colunas.
 
@@ -38,7 +38,7 @@ function ajs_col_names!(ser_cid::SerieCidades)
 end
 
 """
-Realiza a truncagem do dataset, dividindo-o em train set e validation set e 
+Realiza a truncagem do dataset, dividindo-o em 'train set' e 'validation set' e 
 excluindo do dataset principal as features não empregadas pelo modelo.
 
 Recebe:
