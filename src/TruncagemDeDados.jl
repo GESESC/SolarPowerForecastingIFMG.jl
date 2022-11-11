@@ -82,10 +82,10 @@ function trunc_data!(
 
         # Lista as datas únicas do dataset
         dates_uniq = unique(select(dataset, :DATE))
-        for col in values(columns_change)
-            dataset[!,[col]] = collect(
-                skipmissing(Matrix(dataset[!,[col]]))
-            )
+
+        for (id, col) in enumerate(eachcol(dataset))
+            #dataset[:,id] = map(x -> if x === missing x = 0 else x  end, col)
+            dataset[:,id] = replace(col, missing => 0.)
         end
         #índice superior e inferior para truncagem 
         #sidx_to_trunc = findfirst(x::Float64->x>0, dataset[:,:ADSOLPW])
