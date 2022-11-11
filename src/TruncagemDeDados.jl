@@ -85,12 +85,16 @@ function trunc_data!(
 
         
         for col in values(columns_change)
-            replace!(dataset[:,col], missing => 0.)
+            dataset[:,col] = collect(
+                Missings.replace(
+                    dados.serie[1].dataset[:,:ADSOLPW], 0
+                )
+            )
         end
         #índice superior e inferior para truncagem 
         #sidx_to_trunc = findfirst(x::Float64->x>0, dataset[:,:ADSOLPW])
         #iidx_to_trunc = findlast(x::Float64->x>0, dataset[:,:ADSOLPW])
         #dataset = dataset[sidx_to_trunc:iidx_to_trunc, :]
     end
-    #return dataset
+    return dataset
 end
