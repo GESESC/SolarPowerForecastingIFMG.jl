@@ -82,13 +82,9 @@ function trunc_data!(
 
         # Lista as datas únicas do dataset
         dates_uniq = unique(select(dataset, :DATE))
-
-        
         for col in values(columns_change)
-            dataset[:,col] = collect(
-                Missings.replace(
-                    dados.serie[1].dataset[:,:ADSOLPW], 0
-                )
+            dataset[!,[col]] = collect(
+                skipmissing(Matrix(dataset[!,[col]]))
             )
         end
         #índice superior e inferior para truncagem 
