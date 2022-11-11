@@ -63,6 +63,7 @@ function trunc_data!(
     vd::Float64 =.3
 )
     if metodo == :torres
+        # Seleciona as colunas com dados crus raw
         columns_change = Dict(
             01 => :DATE,
             02 => :HORA,
@@ -83,14 +84,24 @@ function trunc_data!(
         # Lista as datas únicas do dataset
         dates_uniq = unique(select(dataset, :DATE))
 
+        # Substitui missings por zeros 
         for (id, col) in enumerate(eachcol(dataset))
-            #dataset[:,id] = map(x -> if x === missing x = 0 else x  end, col)
             dataset[:,id] = replace(col, missing => 0.)
         end
-        #índice superior e inferior para truncagem 
-        #sidx_to_trunc = findfirst(x::Float64->x>0, dataset[:,:ADSOLPW])
-        #iidx_to_trunc = findlast(x::Float64->x>0, dataset[:,:ADSOLPW])
-        #dataset = dataset[sidx_to_trunc:iidx_to_trunc, :]
+
+        # Rotina para agrupamento de dados diários
+        void_df = DataFrame()
+
+        for dt in eachrow(dates_uniq)
+            df_locday = subset(dataset, :DATE => day -> day .== dt[:DATE])
+            df_locday = select(df_locday, Not(:DATE))
+
+            #Problemas com o conteúdo de df_locday. Alguma string está atrapalhando o somatório
+            df_locday = combine(df_locday, All() .=> sum, renamecols=false)
+            df_locday = hcat(DataFrame(:DATE => dt), df_locday)
+            void_df = vcat(void_df, df_locday)
+        end
+
     end
     return dataset
-end
+end 
