@@ -94,7 +94,7 @@ function trunc_data!(
 
         for dt in eachrow(dates_uniq)
             df_locday = subset(dataset, :DATE => day -> day .== dt[:DATE])
-            df_locday = select(df_locday, Not(:DATE))
+            select!(df_locday, Not(:DATE))
 
             #Problemas com o conteúdo de df_locday. Alguma string está atrapalhando o somatório
             df_locday = combine(df_locday, All() .=> sum, renamecols=false)
