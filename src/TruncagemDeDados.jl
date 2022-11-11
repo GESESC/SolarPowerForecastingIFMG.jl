@@ -81,12 +81,12 @@ function trunc_data!(
         select!(dataset, collect(values(columns_change)))
 
         # Lista as datas únicas do dataset
-       # dates_uniq = unique(select(dataset, :DATE))
+        dates_uniq = unique(select(dataset, :DATE))
 
         
-        #for col in values(columns_change)
-        #    replace!(dataset[:,col], missing => 0.)
-        #end
+        for col in values(columns_change)
+            replace!(dataset[:,col], missing => 0.)
+        end
         #índice superior e inferior para truncagem 
         #sidx_to_trunc = findfirst(x::Float64->x>0, dataset[:,:ADSOLPW])
         #iidx_to_trunc = findlast(x::Float64->x>0, dataset[:,:ADSOLPW])
