@@ -56,12 +56,14 @@ Uma tupla nomeada com os percentuais de truncagem (tr) e validação (vd).
 .7 e .3 são assumidos como padrão.
 
 """
-function trunc_data!(
+function trunc_data(
     dataset::DataFrame, 
     metodo::Symbol = :torres; 
     tr::Float64 =.7, 
     vd::Float64 =.3
 )
+    cpy_dataset = copy(dataset)
+    dataset = DataFrame()
     if metodo == :torres
         # Seleciona as colunas com dados crus raw
         columns_change = Dict(
@@ -73,35 +75,63 @@ function trunc_data!(
             11 => :DTMIN_C
         )
         for col in columns_change
-            rename!(dataset, col)
+            rename!(cpy_dataset, col)
         end
         
         # Trunca o dataset para contemplar apenas as colunas presentes no
         # dicionário columns_change.
         # problema aqui
-        select!(dataset, collect(values(columns_change)))
+        select!(cpy_dataset, collect(values(columns_change)))
 
         # Lista as datas únicas do dataset
-        dates_uniq = unique(select(dataset, :DATE))
+        dates_uniq = unique(select(cpy_dataset, :DATE))
 
         # Substitui missings por zeros 
-        for (id, col) in enumerate(eachcol(dataset))
-            dataset[:,id] = replace(col, missing => 0.)
+        for (id, col) in enumerate(eachcol(cpy_dataset))
+            cpy_dataset[:,id] = replace(col, missing => 0.)
         end
 
         # Rotina para agrupamento de dados diários
-        void_df = DataFrame()
 
         for dt in eachrow(dates_uniq)
-            df_locday = subset(dataset, :DATE => day -> day .== dt[:DATE])
-            select!(df_locday, Not(:DATE))
-
+            void_df = DataFrame()
+            df_locday = subset(cpy_dataset, :DATE => day -> day .== dt[:DATE])
+            #select!(df_locday, Not(:DATE))
             #Problemas com o conteúdo de df_locday. Alguma string está atrapalhando o somatório
-            df_locday = combine(df_locday, All() .=> sum, renamecols=false)
-            df_locday = hcat(DataFrame(:DATE => dt), df_locday)
-            void_df = vcat(void_df, df_locday)
+            void_df = hcat(
+                void_df,
+                combine(
+                    df_locday, 
+                    [:ADRAIN, :ADSOLPW] .=> sum, 
+                    renamecols=false
+                )
+            )
+            void_df = hcat(
+                void_df,
+                combine(
+                    df_locday, 
+                    :DTMAX_C => maximum, 
+                    renamecols=false
+                )
+            )
+            void_df = hcat(
+                void_df,
+                combine(
+                    df_locday, 
+                    :DTMIN_C => minimum, 
+                    renamecols=false
+                )
+            )
+            void_df = hcat(
+                void_df,
+                combine(
+                    df_locday, 
+                    :DATE => first, 
+                    renamecols=false
+                )
+            )
+            dataset = vcat(dataset, void_df)
         end
-
     end
     return dataset
 end 
