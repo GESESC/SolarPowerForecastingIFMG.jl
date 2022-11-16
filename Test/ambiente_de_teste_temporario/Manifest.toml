@@ -904,9 +904,9 @@ version = "1.50.9+0"
 
 [[deps.Parsers]]
 deps = ["Dates", "SnoopPrecompile"]
-git-tree-sha1 = "cceb0257b662528ecdf0b4b4302eb00e767b38e7"
+git-tree-sha1 = "b64719e8b4504983c7fca6cc9db3ebc8acc2a4d6"
 uuid = "69de0a69-1ddd-5017-9359-2bf0b02dc9f0"
-version = "2.5.0"
+version = "2.5.1"
 
 [[deps.Pipe]]
 git-tree-sha1 = "6842804e7867b115ca9de748a0cf6b364523c16d"
@@ -1138,7 +1138,7 @@ uuid = "b85f4697-e234-5449-a836-ec8e2f98b302"
 version = "1.1.0"
 
 [[deps.SolarPowerForecastingIFMG]]
-deps = ["CSV", "CairoMakie", "DataFrames", "Downloads", "Gumbo", "HTTP", "IJulia", "Missings", "Printf", "ZipFile"]
+deps = ["CSV", "CairoMakie", "DataFrames", "Dates", "Downloads", "Gumbo", "HTTP", "IJulia", "Missings", "Printf", "ZipFile"]
 path = "../.."
 uuid = "324c0b22-a149-4aa4-8e58-0d2d69aac616"
 version = "0.1.0"
