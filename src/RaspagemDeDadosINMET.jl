@@ -120,17 +120,32 @@ function obter_dados(
             =#
 
             # Manipulação dos arquivos
+
+            # Funcao para progresso
+
+            fp = function (ano)
+                prog = ProgressUnknown(
+                    "Baixando arquivos para o ano de $ano:", 
+                    spinner=true
+                )
+                while true
+                    ProgressMeter.next!(prog, spinner="▁▂▃▄▅▆▇█")
+                    rand(1:10^8) == 0xB00 && break
+                end
+                ProgressMeter.finish!(prog)
+            end
             Downloads.download(
                 fonte_dados[ano], 
-                "$ano", 
-                progress=(ag::Int, tot::Int) -> @printf(
-                    "Baixando arquivos para o ano %4i: %.2f \r", 
-                    ano,
-                    (100 - ag/tot)
-                ) 
+                "$(ano).zip", 
+                #progress=(ag::Int, tot::Int) -> @printf(
+                #    "Baixando arquivos para o ano %4i: %.2f \r", 
+                #    ano,
+                #    (100 - ag/tot)
+                #)
+                progress = fp(ano) 
             )
             arquivo_zip = filter(
-                nome_test::String -> occursin(string(ano), nome_test),
+                nome_test::String -> occursin(string(ano, ".zip"), nome_test),
                 readdir()
             )[1]
             zip_lido = ZipFile.Reader(arquivo_zip)
@@ -160,8 +175,9 @@ function obter_dados(
                 end
             end
             close(zip_lido)
+            rm("$(ano).zip")
         end
-        #rm("*.zip")
+        
         return dados_cidades
     catch
         error("Parâmetros inválidos! ")
@@ -189,7 +205,7 @@ function obter_dados(
             # Manipulação dos arquivos
             Downloads.download(
                 fonte_dados[ano], 
-                "$ano", 
+                "$(ano).zip", 
                 progress=(ag::Int, tot::Int) -> @printf(
                     "Baixando arquivos para o ano %4i: %.2f \r", 
                     ano,
@@ -197,7 +213,7 @@ function obter_dados(
                 ) 
             )
             arquivo_zip = filter(
-                nome_test::String -> occursin(string(ano), nome_test),
+                nome_test::String -> occursin(string(ano, ".zip"), nome_test),
                 readdir()
             )[1]
             zip_lido = ZipFile.Reader(arquivo_zip)                        
@@ -226,8 +242,8 @@ function obter_dados(
                 end
             end
             close(zip_lido)
+            rm("$(ano).zip")
         end
-        #rm("$ano")
         return dados_cidades
     catch
         error("Parâmetros inválidos! ")
