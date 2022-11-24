@@ -5,6 +5,7 @@ using ZipFile
 using CSV 
 using DataFrames
 using Printf
+using ProgressMeter
 
 mutable struct EstruturaDeCaptura
     cidade::Union{String}
