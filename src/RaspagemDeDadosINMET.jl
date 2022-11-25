@@ -107,82 +107,59 @@ function obter_dados(
     cidades::Vector{String}, 
     intervtemp::Vector{Int}
 )
-    try
-        # Aramazenamento na memória - scopo da função
-        dados_cidades = SerieCidades(length(intervtemp) * length(cidades))
+    
+    # Aramazenamento na memória - scopo da função
+    dados_cidades = SerieCidades(length(intervtemp) * length(cidades))
 
-        contador = 1
-        for ano in intervtemp
+    contador = 1
+    for ano in intervtemp
+        #= Manutenção de diretórios, caso seja interessante criar subpastas
+            diretorio = string("Dir", ano)
+            mkdir(diretorio)
+            cd(diretorio)
+        =#
+        # Manipulação dos arquivos
+        printstyled(
+                "Baixando dados para o ano $ano:\n",
+                bold = true,
+                color = :green
+        )
+        Downloads.download(fonte_dados[ano], "$(ano).zip")
 
-            #= Manutenção de diretórios, caso seja interessante criar subpastas
-                diretorio = string("Dir", ano)
-                mkdir(diretorio)
-                cd(diretorio)
-            =#
-
-            # Manipulação dos arquivos
-
-            # Funcao para progresso
-
-            fp = function (ano)
-                prog = ProgressUnknown(
-                    "Baixando arquivos para o ano de $ano:", 
-                    spinner=true
-                )
-                while true
-                    ProgressMeter.next!(prog, spinner="▁▂▃▄▅▆▇█")
-                    rand(1:10^8) == 0xB00 && break
-                end
-                ProgressMeter.finish!(prog)
-            end
-            Downloads.download(
-                fonte_dados[ano], 
-                "$(ano).zip", 
-                #progress=(ag::Int, tot::Int) -> @printf(
-                #    "Baixando arquivos para o ano %4i: %.2f \r", 
-                #    ano,
-                #    (100 - ag/tot)
-                #)
-                progress = fp(ano) 
-            )
-            arquivo_zip = filter(
-                nome_test::String -> occursin(string(ano, ".zip"), nome_test),
-                readdir()
-            )[1]
-            zip_lido = ZipFile.Reader(arquivo_zip)
-            for cid in cidades
-                for arq in zip_lido.files
-                    #println("Analisando o arquivo $arq")
-                    if occursin("$(lowercase(cid))", lowercase(arq.name))
-                        println("Processando arquivos de dados do ano $ano para a cidade de $cid...\r")
-                        #= 
-                        Os DataFrames estão sendo armazenados completamente na
-                        memória, no futuro conseguir uma forma de excluir as 
-                        séries que não são de interesse para o modelo. 
-                        =#
-                        dados_cidades.serie[contador] = EstruturaDeCaptura(
-                            cid,
-                            ano, 
-                            CSV.File(
-                                arq, 
-                                header = 9,
-                                delim = ';',
-                                decimal = ',',
-                                silencewarnings = true
-                            ) |> DataFrames.DataFrame
-                        )
-                        contador+=1
-                    end
+        arquivo_zip = filter(
+            nome_test::String -> occursin(string(ano, ".zip"), nome_test),
+            readdir()
+        )[1]
+        zip_lido = ZipFile.Reader(arquivo_zip)
+        for cid in cidades
+            for arq in zip_lido.files
+                #println("Analisando o arquivo $arq")
+                if occursin("$(lowercase(cid))", lowercase(arq.name))
+                    println("\nProcessando arquivos de dados do ano $ano para a cidade de $cid...")
+                    #= 
+                    Os DataFrames estão sendo armazenados completamente na
+                    memória, no futuro conseguir uma forma de excluir as 
+                    séries que não são de interesse para o modelo. 
+                    =#
+                    dados_cidades.serie[contador] = EstruturaDeCaptura(
+                        cid,
+                        ano, 
+                        CSV.File(
+                            arq, 
+                            header = 9,
+                            delim = ';',
+                            decimal = ',',
+                            silencewarnings = true
+                        ) |> DataFrames.DataFrame
+                    )
+                    contador+=1
                 end
             end
-            close(zip_lido)
-            rm("$(ano).zip")
         end
-        
-        return dados_cidades
-    catch
-        error("Parâmetros inválidos! ")
+        close(zip_lido)
+        rm("$(ano).zip")
     end
+    return dados_cidades
 end
 
 function obter_dados(
@@ -190,64 +167,57 @@ function obter_dados(
     cidades::Vector{String}, 
     intervtemp::UnitRange
 )
-    try
-        # Aramazenamento na memória - scopo da função
-        dados_cidades = SerieCidades(length(intervtemp) * length(cidades))
+    # Aramazenamento na memória - scopo da função
+    dados_cidades = SerieCidades(length(intervtemp) * length(cidades))
 
-        contador = 1
-        for ano in intervtemp
+    contador = 1
+    for ano in intervtemp
 
-            #= Manutenção de diretórios, caso seja interessante criar subpastas
-                diretorio = string("Dir", ano)
-                mkdir(diretorio)
-                cd(diretorio)
-            =#
+        #= Manutenção de diretórios, caso seja interessante criar subpastas
+            diretorio = string("Dir", ano)
+            mkdir(diretorio)
+            cd(diretorio)
+        =#
 
-            # Manipulação dos arquivos
-            Downloads.download(
-                fonte_dados[ano], 
-                "$(ano).zip", 
-                progress=(ag::Int, tot::Int) -> @printf(
-                    "Baixando arquivos para o ano %4i: %.2f \r", 
-                    ano,
-                    (100 - ag/tot)
-                ) 
-            )
-            arquivo_zip = filter(
-                nome_test::String -> occursin(string(ano, ".zip"), nome_test),
-                readdir()
-            )[1]
-            zip_lido = ZipFile.Reader(arquivo_zip)                        
-            for cid in cidades
-                for arq in zip_lido.files
-                    if occursin("$(lowercase(cid))", lowercase(arq.name))
-                        println("Processando arquivos de dados do ano $ano para a cidade de $cid...\r")
-                        #= 
-                        Os DataFrames estão sendo armazenados completamente na
-                        memória, no futuro conseguir uma forma de excluir as 
-                        séries que não são de interesse para o modelo. 
-                        =#
-                        dados_cidades.serie[contador] = EstruturaDeCaptura(
-                            cid,
-                            ano, 
-                            CSV.File(
-                                arq, 
-                                header = 9,
-                                delim = ';',
-                                decimal = ',',
-                                silencewarnings = true
-                            ) |> DataFrames.DataFrame
-                        )
-                        contador+=1
-                    end
+        # Manipulação dos arquivos
+        printstyled(
+            "Baixando dados para o ano de $ano:\n",
+            bold = true,
+            color = :green
+        )
+        Downloads.download(fonte_dados[ano], "$(ano).zip")
+        arquivo_zip = filter(
+            nome_test::String -> occursin(string(ano, ".zip"), nome_test),
+            readdir()
+        )[1]
+        zip_lido = ZipFile.Reader(arquivo_zip)                        
+        for cid in cidades
+            for arq in zip_lido.files
+                if occursin("$(lowercase(cid))", lowercase(arq.name))
+                    println("\nProcessando arquivos de dados do ano $ano para a cidade de $cid...")
+                    #= 
+                    Os DataFrames estão sendo armazenados completamente na
+                    memória, no futuro conseguir uma forma de excluir as 
+                    séries que não são de interesse para o modelo. 
+                    =#
+                    dados_cidades.serie[contador] = EstruturaDeCaptura(
+                        cid,
+                        ano, 
+                        CSV.File(
+                            arq, 
+                            header = 9,
+                            delim = ';',
+                            decimal = ',',
+                            silencewarnings = true
+                        ) |> DataFrames.DataFrame
+                    )
+                    contador+=1
                 end
             end
-            close(zip_lido)
-            rm("$(ano).zip")
         end
-        return dados_cidades
-    catch
-        error("Parâmetros inválidos! ")
+        close(zip_lido)
+        rm("$(ano).zip")
     end
+    return dados_cidades
 end
 

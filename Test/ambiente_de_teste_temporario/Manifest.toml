@@ -349,15 +349,15 @@ version = "3.3.8+0"
 
 [[deps.GR]]
 deps = ["Artifacts", "Base64", "DelimitedFiles", "Downloads", "GR_jll", "HTTP", "JSON", "Libdl", "LinearAlgebra", "Pkg", "Preferences", "Printf", "Random", "Serialization", "Sockets", "TOML", "Tar", "Test", "UUIDs", "p7zip_jll"]
-git-tree-sha1 = "7cf81e7388dc19629aba24666ec46e8d250f58cf"
+git-tree-sha1 = "051072ff2accc6e0e87b708ddee39b18aa04a0bc"
 uuid = "28b8d3ca-fb5f-59d9-8090-bfdbd6d07a71"
-version = "0.71.0"
+version = "0.71.1"
 
 [[deps.GR_jll]]
 deps = ["Artifacts", "Bzip2_jll", "Cairo_jll", "FFMPEG_jll", "Fontconfig_jll", "GLFW_jll", "JLLWrappers", "JpegTurbo_jll", "Libdl", "Libtiff_jll", "Pixman_jll", "Pkg", "Qt5Base_jll", "Zlib_jll", "libpng_jll"]
-git-tree-sha1 = "d63e2e87b93e1ed04d339d6d0050fb8efae34cfe"
+git-tree-sha1 = "501a4bf76fd679e7fcd678725d5072177392e756"
 uuid = "d2c73de3-f751-5644-a686-071e5b155ba9"
-version = "0.71.0+0"
+version = "0.71.1+0"
 
 [[deps.GeoInterface]]
 deps = ["Extents"]
@@ -1138,7 +1138,7 @@ uuid = "b85f4697-e234-5449-a836-ec8e2f98b302"
 version = "1.1.0"
 
 [[deps.SolarPowerForecastingIFMG]]
-deps = ["CSV", "CairoMakie", "DataFrames", "Dates", "Downloads", "Gumbo", "HTTP", "IJulia", "Missings", "Printf", "ZipFile"]
+deps = ["CSV", "CairoMakie", "DataFrames", "Dates", "Downloads", "Gumbo", "HTTP", "IJulia", "Missings", "Printf", "ProgressMeter", "ZipFile"]
 path = "../.."
 uuid = "324c0b22-a149-4aa4-8e58-0d2d69aac616"
 version = "0.1.0"
