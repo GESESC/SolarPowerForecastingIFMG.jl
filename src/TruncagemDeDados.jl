@@ -16,7 +16,7 @@ i) ser_cid:
 A estrutura de captura com o nome das colunas pertencentes ao dataset interno
 de cada cidade com a codificação de nome modificada. 
 """
-function ajst_colnames(ser_cid::SerieCidades)
+function ajst_colnames!(ser_cid::SerieCidades)
     columns_change = (
         3=>"PRECIPITACAO TOTAL, HORARIA (mm)",
         5=>"PRESSAO ATMOSFERICA MAX.NA HORA ANT.(AUT) (mB)",
@@ -97,6 +97,7 @@ function treat_data(
             for dt in eachrow(dates_uniq)
                 void_df = DataFrame()
                 df_locday = subset(cpy_dataset, :DATE => day -> day .== dt[:DATE])
+                println(df_locday)
                 map!(
                     df_locday[!,:DATE], 
                     v -> Date.(convert.(String, v), dateformat"y/m/d")
