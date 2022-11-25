@@ -16,7 +16,7 @@ i) ser_cid:
 A estrutura de captura com o nome das colunas pertencentes ao dataset interno
 de cada cidade com a codificação de nome modificada. 
 """
-function ajs_col_names!(ser_cid::SerieCidades)
+function ajst_colnames(ser_cid::SerieCidades)
     columns_change = (
         3=>"PRECIPITACAO TOTAL, HORARIA (mm)",
         5=>"PRESSAO ATMOSFERICA MAX.NA HORA ANT.(AUT) (mB)",
