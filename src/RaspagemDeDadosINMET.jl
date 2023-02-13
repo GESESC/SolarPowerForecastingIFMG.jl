@@ -42,6 +42,7 @@ function statusINMET()
     idx = 2
     series = Dict{Int16, String}()
     #series = {Dict{String, String}}[]
+    val = 1 
     while true
         try
             #=
@@ -52,11 +53,11 @@ function statusINMET()
                 parse(
                     Int32,
                     split(
-                        dados_anos.root[2][4][1][1][idx][1][1].text
+                        dados_anos.root[2][3][1][1][idx][1][1].text
                     )[2]
                 )
             ] = attrs(
-                dados_anos.root[2][4][1][1][idx][1]
+                dados_anos.root[2][3][1][1][idx][1]
             )["href"]
             idx+=2
 
@@ -78,6 +79,7 @@ function statusINMET()
             break
         end
     end
+    
     chaves_ord = sort(collect(keys(series)))
     prim, ulti = chaves_ord[1], chaves_ord[end]
     printstyled("Estrato de dados INMET\n"; bold=true)

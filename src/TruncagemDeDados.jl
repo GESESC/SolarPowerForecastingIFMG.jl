@@ -63,7 +63,7 @@ function treat_data(
     tr::Float64 =.7, 
     vd::Float64 =.3
 )
-    for s in sercid.serie
+    for (i,s) in enumerate(sercid.serie)
         cpy_dataset = copy(s.dataset)
         dataset = DataFrame()
         if metodo == :torres
@@ -97,13 +97,10 @@ function treat_data(
             for dt in eachrow(dates_uniq)
                 void_df = DataFrame()
                 df_locday = subset(cpy_dataset, :DATE => day -> day .== dt[:DATE])
-                println(df_locday)
-                map!(
-                    df_locday[!,:DATE], 
-                    v -> Date.(convert.(String, v), dateformat"y/m/d")
-                )
-                #select!(df_locday, Not(:DATE))
-                #Problemas com o conteúdo de df_locday. Alguma string está atrapalhando o somatório
+                df_locday[!,:DATE] = [Date(
+                        replace(d, '/'=>'-'), 
+                        dateformat"yyyy-mm-dd"
+                    ) for d in df_locday[!,:DATE] ]
                 void_df = hcat(
                     void_df,
                     combine(
@@ -139,6 +136,7 @@ function treat_data(
                 dataset = vcat(dataset, void_df)
             end
         end
+        sercid.serie[i].dataset = dataset
     end
-    return dataset
+    return sercid
 end 
