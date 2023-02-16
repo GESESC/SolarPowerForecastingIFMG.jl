@@ -2,6 +2,7 @@ using DataFrames
 using SolarPowerForecastingIFMG.RaspagemDeDadosINMET
 using Missings
 using Dates
+using Random
 
 """
 Corrige a codificação de nomes de colunas.
@@ -139,4 +140,22 @@ function treat_data!(
         sercid.serie[i].dataset = dataset
     end
     return sercid
-end 
+end
+
+"""
+Realiza o divisão randômica do dataset em train set e test set.
+
+Recebe:
+
+i) dataset::DataFrame:
+Um dataframe extraído do INMET com dados meteorológicos.
+
+ii) opcional - frac::Float64 = 0.7:
+A fração aplicada a criação do dataset de treinamento. 
+"""
+function split_df(dataset; frac=.7)
+    ids = collect(axes(dataset, 1))
+    shuffle!(ids)
+    sel = ids .<= nrow(dataset) .* frac
+    return view(dataset, sel, :), view(dataset, .!sel, :)
+end

@@ -7,7 +7,7 @@ module SolarPowerForecastingIFMG
 
     module TruncagemDeDados
         include("TruncagemDeDados.jl");
-        export ajst_colnames!, treat_data!
+        export ajst_colnames!, treat_data!, split_df
     end
 
 end # module
