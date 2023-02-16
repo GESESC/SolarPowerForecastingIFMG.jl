@@ -157,5 +157,5 @@ function split_df(dataset; frac=.7)
     ids = collect(axes(dataset, 1))
     shuffle!(ids)
     sel = ids .<= nrow(dataset) .* frac
-    return view(dataset, sel, :), view(dataset, .!sel, :)
+    return dataset[sel, :], dataset[.!sel, :]
 end

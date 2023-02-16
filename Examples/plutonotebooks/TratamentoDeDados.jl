@@ -15,7 +15,10 @@ end
 using SolarPowerForecastingIFMG.RaspagemDeDadosINMET, SolarPowerForecastingIFMG.TruncagemDeDados, DataFrames
 
 # ╔═╡ c3a96d00-d75c-4606-87b7-ebe70bf397b7
-using Plots
+begin
+	using Plots
+	gr()
+end
 
 # ╔═╡ 57fdd56c-adf3-11ed-15f8-495dfdad0b57
 md"""
@@ -111,6 +114,106 @@ end
 # ╔═╡ 9d1cf666-9f2b-475c-b9c2-b9407f713aab
 md""" Avaliações estatísticas mais precisas serão apresentadas nos próximos notebook."""
 
+# ╔═╡ 5ebe0af6-8fc2-4743-9863-92b4542bdc59
+md"""
+### Truncagem do *dataset*
+
+Para o treinamento do modelo geralmente se divide as sérias em *train set* e *test set* a primeira para o treinamento propriamente dito e a segunda para a validação. 
+
+O método `split_df()` do módulo `TruncagemDeDado` do pacote faz esse trabalho.
+"""
+
+# ╔═╡ 32a80cdd-4965-4289-9f1e-c33d1ece841a
+train_set, test_set = split_df(dados.serie[1].dataset);
+
+# ╔═╡ c2212416-9040-45ec-8784-9cf82efd29d5
+first(train_set, 5)
+
+# ╔═╡ d7ad8d2d-ae50-4802-9ef4-ca51ce2b38c7
+first(test_set, 5)
+
+# ╔═╡ ea5e5e75-7529-4ea0-a6b2-f3a26d4b1918
+md"""
+A suficiência do método pode ser verificada apreciando-se visualmente a distribuição entre os dois *datasets*.
+"""
+
+# ╔═╡ 6b7459bb-abdf-46ad-b3a7-232e5adea873
+begin
+	plot(
+		train_set.DATE, 
+		train_set.ADRAIN,
+		xlabel = "Data",
+		ylabel = "Pluviosidade diária acumulada mm",
+		label="train"
+	) 
+ 	scatter!(
+		test_set.DATE, 
+		test_set.ADRAIN,
+		xlabel = "Data",
+		ylabel = "Pluviosidade diária acumulada (mm)",
+		ma=0.6,
+		ms=2.5,
+	label="test"
+	)
+end
+
+
+# ╔═╡ 2f71f846-b0c0-430d-8aa1-af69237d56a5
+begin
+	plot(
+		train_set.DATE, 
+		train_set.ADSOLPW,
+		xlabel = "Data",
+		ylabel = "Radiação Global Diária Acumuluada (KJ/m²)",
+		label="train"
+	) 
+ 	scatter!(
+		test_set.DATE, 
+		test_set.ADSOLPW,
+		xlabel = "Data",
+		ylabel = "Radiação Global Diária Acumuluada (KJ/m²)",
+		ma=0.6,
+		ms=2.5,
+	label="test"
+	)
+end
+
+# ╔═╡ a6d855d9-b29a-4328-8ae4-57c6bdc3ee7a
+begin
+	plot(
+		train_set.DATE, 
+		train_set.DTMAX_C,
+		xlabel = "Data",
+		ylabel = "Temperatura (°C)",
+		label="Máxima diária - train"
+	)
+	plot!(
+		train_set.DATE, 
+		train_set.DTMIN_C,
+		xlabel = "Data",
+		ylabel = "Temperatura (°C)",
+		label="Mínima diária - train"
+	) 
+	scatter!(
+		test_set.DATE, 
+		test_set.DTMAX_C,
+		xlabel = "Data",
+		ylabel = "Temperatura (°C)",
+		label="Máxima diária - test",
+		ma=0.6,
+		ms=2.5,
+	)
+	scatter!(
+		test_set.DATE, 
+		test_set.DTMIN_C,
+		xlabel = "Data",
+		ylabel = "Temperatura (°C)",
+		label="Mínima diária - test",
+		ma=0.6,
+		ms=2.5
+	) 
+end
+
 # ╔═╡ Cell order:
 # ╟─57fdd56c-adf3-11ed-15f8-495dfdad0b57
 # ╟─4b4fb2d8-48a1-4597-982c-80466dd2d81e
@@ -132,3 +235,11 @@ md""" Avaliações estatísticas mais precisas serão apresentadas nos próximos
 # ╠═a4a8756e-bcaf-44c7-8419-9460c9a3ce40
 # ╠═907eff22-9cdf-48c2-af1f-8b8e15e99499
 # ╟─9d1cf666-9f2b-475c-b9c2-b9407f713aab
+# ╟─5ebe0af6-8fc2-4743-9863-92b4542bdc59
+# ╠═32a80cdd-4965-4289-9f1e-c33d1ece841a
+# ╠═c2212416-9040-45ec-8784-9cf82efd29d5
+# ╠═d7ad8d2d-ae50-4802-9ef4-ca51ce2b38c7
+# ╟─ea5e5e75-7529-4ea0-a6b2-f3a26d4b1918
+# ╠═6b7459bb-abdf-46ad-b3a7-232e5adea873
+# ╠═2f71f846-b0c0-430d-8aa1-af69237d56a5
+# ╠═a6d855d9-b29a-4328-8ae4-57c6bdc3ee7a
