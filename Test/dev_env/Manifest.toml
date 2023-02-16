@@ -1196,7 +1196,7 @@ uuid = "b85f4697-e234-5449-a836-ec8e2f98b302"
 version = "1.1.0"
 
 [[deps.SolarPowerForecastingIFMG]]
-deps = ["CSV", "CairoMakie", "DataFrames", "Dates", "Downloads", "Gumbo", "HTTP", "IJulia", "Missings", "Printf", "ProgressMeter", "ZipFile"]
+deps = ["CSV", "CairoMakie", "DataFrames", "Dates", "Downloads", "Gumbo", "HTTP", "IJulia", "Missings", "Printf", "ProgressMeter", "Random", "ZipFile"]
 path = "../.."
 uuid = "324c0b22-a149-4aa4-8e58-0d2d69aac616"
 version = "0.1.0"
