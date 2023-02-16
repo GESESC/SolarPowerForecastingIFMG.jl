@@ -55,7 +55,7 @@ Verifique a documentação via *Live Docs*.
 """
 
 # ╔═╡ 7b200f79-3552-4773-9107-a44ad1c69119
-treat_data!(dados)
+treat_data!(dados);
 
 # ╔═╡ 23c75a65-3d89-4a15-8156-17bf9ba95800
 md"""
@@ -93,6 +93,24 @@ begin
 	ylabel!("Radiação Global Acumuluada (KJ/m²)")
 end
 
+# ╔═╡ a4a8756e-bcaf-44c7-8419-9460c9a3ce40
+md"""
+Um exemplo um pouco mais instrutivo seria a determinação da correlação entre colunas do *dataset*.
+
+Suponha que se queira apreciar a correlação entre a máxima temperatura diária e a radiação global acumulada no dia.
+
+"""
+
+# ╔═╡ 907eff22-9cdf-48c2-af1f-8b8e15e99499
+begin
+	scatter(dados.serie[1].dataset.DTMAX_C, dados.serie[1].dataset.ADSOLPW, label=false)
+	xlabel!("Temperatura diária máxima (°C)")
+	ylabel!("Radiação Global Acumuluada (KJ/m²)")
+end
+
+# ╔═╡ 9d1cf666-9f2b-475c-b9c2-b9407f713aab
+md""" Avaliações estatísticas mais precisas serão apresentadas nos próximos notebook."""
+
 # ╔═╡ Cell order:
 # ╟─57fdd56c-adf3-11ed-15f8-495dfdad0b57
 # ╟─4b4fb2d8-48a1-4597-982c-80466dd2d81e
@@ -111,3 +129,6 @@ end
 # ╠═8d59507a-5bae-4a0c-966c-2062ea8894ff
 # ╠═c3a96d00-d75c-4606-87b7-ebe70bf397b7
 # ╠═4642f870-2805-495f-97d6-1115f8328172
+# ╠═a4a8756e-bcaf-44c7-8419-9460c9a3ce40
+# ╠═907eff22-9cdf-48c2-af1f-8b8e15e99499
+# ╟─9d1cf666-9f2b-475c-b9c2-b9407f713aab
