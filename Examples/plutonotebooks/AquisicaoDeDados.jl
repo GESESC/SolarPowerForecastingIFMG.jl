@@ -11,7 +11,7 @@ begin
 end
 
 # ╔═╡ 74dc1203-63c8-4c2a-9718-ccb74f0d3f5e
-using SolarPowerForecastingIFMG.RaspagemDeDadosINMET, SolarPowerForecastingIFMG.TruncagemDeDados, DataFrames, Missings, PlutoUI
+using SolarPowerForecastingIFMG.RaspagemDeDadosINMET, SolarPowerForecastingIFMG.TruncagemDeDados, DataFrames, PlutoUI
 
 # ╔═╡ 4dfb5000-ad56-11ed-2793-07029cb1fd07
 md"""

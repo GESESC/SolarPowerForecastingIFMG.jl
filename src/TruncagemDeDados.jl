@@ -57,7 +57,7 @@ Uma tupla nomeada com os percentuais de truncagem (tr) e validação (vd).
 .7 e .3 são assumidos como padrão.
 
 """
-function treat_data(
+function treat_data!(
     sercid::SerieCidades, 
     metodo::Symbol = :torres; 
     tr::Float64 =.7, 
