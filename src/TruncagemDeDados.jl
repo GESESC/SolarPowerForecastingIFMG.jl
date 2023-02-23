@@ -98,7 +98,8 @@ function treat_data!(
             function mod_date(d)
                 if supertype(typeof(d)) == AbstractString
                     if occursin('/', d)
-                        return Date(d, dateformat"yyyy/mm/dd")
+                        replace(d, '/'=>'-')
+                        return Date(d, dateformat"yyyy-mm-dd")
                     end
                 else
                     return d
