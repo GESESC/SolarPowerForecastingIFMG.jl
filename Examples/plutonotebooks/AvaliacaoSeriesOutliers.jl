@@ -99,7 +99,7 @@ p = scatter(
 
 # ╔═╡ ef44d739-4ad3-4532-bc38-bff48f53caba
 md"""
-Modifique o número da série para valores abaixo de 10 (até 1) e acima de 10 (até 14) e verá que existem *outliers* absurdos antes da série 9 que se refere a:
+Modifique o número da série para valores abaixo de 10 (até 1) e acima de 10 (até 14) e verá que existem *outliers* absurdos antes da série 9 que se refere ao ano:
 """
 
 # ╔═╡ 3fe774e9-662b-41d4-b1f4-e48dbfdbe592
@@ -108,6 +108,9 @@ println(dados.serie[9].ano)
 # ╔═╡ 0d6eaf2b-5f63-4140-92e4-23354dd466c9
 md"""
 Desta forma você verificará qual melhor intervalo temporal de trabalho para a estação de Formiga.
+
+
+Faça o mesmo para as outras colunas da tabela.
 """
 
 # ╔═╡ Cell order:
