@@ -3,7 +3,7 @@ using SolarPowerForecastingIFMG.RaspagemDeDadosINMET
 using Missings
 using Dates
 using Random
-
+using InlineStrings
 """
 Corrige a codificação de nomes de colunas.
 
@@ -96,9 +96,10 @@ function treat_data!(
 
             # Rotina para agrupamento de dados diários
             function mod_date(d)
-                if supertype(typeof(d)) == AbstractString
+                if typeof(d) == String15
+                    d = String(d)
                     if occursin('/', d)
-                        replace(d, '/'=>'-')
+                        d = replace(d, '/'=>'-')
                         return Date(d, dateformat"yyyy-mm-dd")
                     end
                 else
