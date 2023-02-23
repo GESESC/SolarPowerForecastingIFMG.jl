@@ -39,7 +39,7 @@ md"""Consultando a fonte de dados, baixando e ajustando os nomes das colunas."""
 # ╔═╡ d799e0fc-99cf-44da-b703-c90eb1d6677a
 begin
 	fonte_dados = statusINMET();
-	dados = obter_dados(fonte_dados, ["FORMIGA"], [2019]);
+	dados = obter_dados(fonte_dados, ["FORMIGA"], 2017:2019);
 	ajst_colnames!(dados);
 end
 
@@ -215,7 +215,7 @@ begin
 end
 
 # ╔═╡ Cell order:
-# ╟─57fdd56c-adf3-11ed-15f8-495dfdad0b57
+# ╠═57fdd56c-adf3-11ed-15f8-495dfdad0b57
 # ╟─4b4fb2d8-48a1-4597-982c-80466dd2d81e
 # ╠═23de5c62-6c49-4c2c-ab65-dcf16d0b035b
 # ╟─5d7cc2d7-7e8d-4f2d-9b95-86bdf173150b

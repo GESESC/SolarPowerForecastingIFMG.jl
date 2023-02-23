@@ -95,13 +95,22 @@ function treat_data!(
             end
 
             # Rotina para agrupamento de dados diários
+            function mod_date(d)
+                if supertype(typeof(d)) == AbstractString
+                    if occursin('/', d)
+                        return Date(d, dateformat"yyyy/mm/dd")
+                    end
+                else
+                    return d
+                end
+            end
+
             for dt in eachrow(dates_uniq)
                 void_df = DataFrame()
                 df_locday = subset(cpy_dataset, :DATE => day -> day .== dt[:DATE])
-                df_locday[!,:DATE] = [Date(
-                        replace(d, '/'=>'-'), 
-                        dateformat"yyyy-mm-dd"
-                    ) for d in df_locday[!,:DATE] ]
+                df_locday[!,:DATE] = [
+                        mod_date(d) for d in df_locday[!,:DATE]
+                ]
                 void_df = hcat(
                     void_df,
                     combine(
