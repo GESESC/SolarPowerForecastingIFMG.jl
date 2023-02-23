@@ -39,7 +39,7 @@ md"""Consultando a fonte de dados, baixando e ajustando os nomes das colunas."""
 # ╔═╡ d799e0fc-99cf-44da-b703-c90eb1d6677a
 begin
 	fonte_dados = statusINMET();
-	dados = obter_dados(fonte_dados, ["FORMIGA"], 2017:2020);
+	dados = obter_dados(fonte_dados, ["FORMIGA"], 2019);
 	ajst_colnames!(dados);
 end
 
@@ -71,7 +71,7 @@ Na listagem abaixo são mostradas as primeiras e últimas cinco linhas do novo *
 first(dados.serie[1].dataset, 5)
 
 # ╔═╡ f41f23e1-c5d2-4c65-8ab5-55f2699702ff
-last(dados.serie[1].dataset, 5)
+last(dados.serie[2].dataset, 5)
 
 # ╔═╡ 69cbdd31-4f9a-4212-9d82-6cb70e33c5eb
 md"""
