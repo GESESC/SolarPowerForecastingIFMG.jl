@@ -154,7 +154,7 @@ function treat_data!(
 end
 
 """
-Realiza o divisão randômica do dataset em train set e test set.
+Realiza o divisão do dataset em train set e test set.
 
 Recebe:
 
@@ -170,3 +170,6 @@ function split_df(dataset; frac=.7)
     sel = ids .<= nrow(dataset) .* frac
     return dataset[sel, :], dataset[.!sel, :]
 end
+
+# Implementar aqui uma função para armazenamento off line dos em formato
+# csv ou outro.

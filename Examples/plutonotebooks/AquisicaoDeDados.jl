@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.24
+# v0.19.25
 
 using Markdown
 using InteractiveUtils
@@ -8,6 +8,7 @@ using InteractiveUtils
 begin
 	using Pkg
 	Pkg.activate("/home/reginaldo/Insync/Trabalho/IFMG/IFMG_ARCOS/TCCs/TCCVitinho/SolarPowerForecastingIFMG.jl/Test/dev_env")
+	Pkg.update()
 end
 
 # ╔═╡ 74dc1203-63c8-4c2a-9718-ccb74f0d3f5e
