@@ -11,6 +11,9 @@ begin
 	#Pkg.update()
 end
 
+# ╔═╡ e767cc7a-9afc-4d32-8705-bc00b2beccd6
+Pkg.add("CSV")
+
 # ╔═╡ 50e894e2-97b1-489b-a629-be2720fb5b9c
 using SolarPowerForecastingIFMG.RaspagemDeDadosINMET, SolarPowerForecastingIFMG.TruncagemDeDados
 
@@ -134,14 +137,19 @@ begin
 	for i in n_elem
 		plts[i] = scatter(
 			dados.serie[i].dataset[!, :DATE], 
-			dados.serie[i].dataset[!, :ADSOLPW]
+			dados.serie[i].dataset[!, :ADSOLPW],
+			xrotation = 20
 		)
 	end
 	p1=plot(
 		plts...,
-		size=(1000,3500),
-		layout=(7,2),
-		legend=false, 
+		size=(1000,1000),
+		layout=(4,4),
+		legend=false,
+		markersize=3,
+		markeralpha = 0.4,
+		markerstrokewidth = 0.2,
+    	markerstrokealpha = 0.2,
 		font=10
 	)
 	xlabel!(":DATE")
@@ -159,6 +167,12 @@ begin
 	#concatenação das séries
 	using DataFrames
 	new_df = vcat([i.dataset[!,[:DATE, :ADSOLPW]] for i in cp_dados.serie]...);
+end
+
+# ╔═╡ 7a3441c9-8f3a-4d99-8f35-c9a8bfe17bb4
+begin
+	using CSV
+	CSV.write("DataForm2010To2023.csv", new_df)
 end
 
 # ╔═╡ dba9656f-ac9d-430e-9757-859686fe74b8
@@ -184,14 +198,19 @@ begin
 	for i in n_elem
 		plts[i] = scatter(
 			dados.serie[i].dataset[!, :DATE], 
-			dados.serie[i].dataset[!, :ADSOLPW]
+			dados.serie[i].dataset[!, :ADSOLPW],
+			xrotation = 20
 		)
 	end
 	p2=plot(
 		plts...,
-		size=(1000,3500),
-		layout=(7,2),
-		legend=false, 
+		size=(1000,1000),
+		layout=(4,4),
+		legend=false,
+		markersize=3,
+		markeralpha = 0.4,
+		markerstrokewidth = 0.2,
+    	markerstrokealpha = 0.2,
 		font=10
 	)
 	xlabel!(":DATE")
@@ -212,13 +231,25 @@ do método ARIMA sasonal utilizaremos apenas as colunas `:DATE` e `:ADSOLPW`.
 md"Aqui tem-se em `new_df` os dados serializados, conforme pode ser visto no gráfico."
 
 # ╔═╡ 0a3b911b-ef65-4b1e-83e2-3f4c8623a029
-scatter(new_df[!,:DATE], new_df[!, :ADSOLPW], legend=false, ms=2.)
+scatter(
+	new_df[!,:DATE], 
+	new_df[!, :ADSOLPW], 
+	legend=false, 
+	markersize=3,
+	markeralpha = 0.6,
+	markerstrokewidth = 0.2,
+    markerstrokealpha = 0.2,
+	font=10
+)
 
 # ╔═╡ e29cf5c1-370e-4bf7-b09b-817eeeb9e822
 begin
 	xlabel!("Data da Medida")
-	ylabel!("Radiação Solar")
+	ylabel!("Radiação Solar[kJ/m²]")
 end
+
+# ╔═╡ c3c776a0-510a-4695-aede-4ab597219362
+md"Salvando os dados em formato `.csv`, se necessário adicione o pacote CSV."
 
 # ╔═╡ Cell order:
 # ╟─567996a6-b39b-11ed-19aa-271fe00ed366
@@ -250,3 +281,6 @@ end
 # ╠═2f2c234b-25b1-47d3-a931-06cf9c9d884c
 # ╠═0a3b911b-ef65-4b1e-83e2-3f4c8623a029
 # ╠═e29cf5c1-370e-4bf7-b09b-817eeeb9e822
+# ╠═c3c776a0-510a-4695-aede-4ab597219362
+# ╠═e767cc7a-9afc-4d32-8705-bc00b2beccd6
+# ╠═7a3441c9-8f3a-4d99-8f35-c9a8bfe17bb4
