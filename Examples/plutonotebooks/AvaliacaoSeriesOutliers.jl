@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.24
+# v0.19.25
 
 using Markdown
 using InteractiveUtils
@@ -8,17 +8,20 @@ using InteractiveUtils
 begin
 	using Pkg
 	Pkg.activate("/home/reginaldo/Insync/Trabalho/IFMG/IFMG_ARCOS/TCCs/TCCVitinho/SolarPowerForecastingIFMG.jl/Test/dev_env")
-	Pkg.update()
+	#Pkg.update()
 end
 
 # ╔═╡ 50e894e2-97b1-489b-a629-be2720fb5b9c
-using SolarPowerForecastingIFMG.RaspagemDeDadosINMET, SolarPowerForecastingIFMG.TruncagemDeDados, DataFrames
+using SolarPowerForecastingIFMG.RaspagemDeDadosINMET, SolarPowerForecastingIFMG.TruncagemDeDados
 
-# ╔═╡ 8c4403b4-71b0-4f4d-a05d-7188c6406c46
+# ╔═╡ 2e5ea967-aec4-4563-b4f0-7b55ce91523e
 begin
 	using Plots
-	plotly()
+	gr()
 end
+
+# ╔═╡ 1dc4a3f6-9fc0-44d8-9b8d-36a2bda51084
+using Statistics
 
 # ╔═╡ 567996a6-b39b-11ed-19aa-271fe00ed366
 md"""
@@ -91,9 +94,9 @@ Pode ser necessária a instalação do *backend* para gráficos interativos.
 
 # ╔═╡ 8a46c032-afcb-4dd8-9792-112f432bb3cd
 p = scatter(
-	dados.serie[10].dataset[!, :DATE], 
-	dados.serie[10].dataset[!, :ADRAIN], 
-	label="Coluna - $(String(:ADRAIN))",
+	dados.serie[6].dataset[!, :DATE], 
+	dados.serie[6].dataset[!, :ADSOLPW], 
+	label="Coluna - $(String(:ADSOLPW))",
 	ms = 1.8
 )
 
@@ -107,11 +110,115 @@ println(dados.serie[9].ano)
 
 # ╔═╡ 0d6eaf2b-5f63-4140-92e4-23354dd466c9
 md"""
-Desta forma você verificará qual melhor intervalo temporal de trabalho para a estação de Formiga.
+Efetivamente, esses *outlier* referem-se a erros de leitura ou registo nas datas especificadas.
 
+O impacto da ausência desses pontos pode ser medido em algum experimento.
 
-Faça o mesmo para as outras colunas da tabela.
+Recomendo que sejam feitas predições utilizando um recorte cronológico onde *outliers* não aparecem, e os resultados sejam comparados com os de outros experimentos que utilizem um recorte cronológico mais extenso que envolva um periódo com dados faltantes. 
+
+O objetivo seria determinar:
+*O que é melhor para a capacidade preditiva do modelo ? Usar um menor intervalo de para a predição sem dados faltantes, ou usar um intervalo de tempo consideravelmente maior mas com dados faltantes?*
+
+Para a extração dos *outliers* do *dataset* é suficiente aplicar um crop dado por
+$\bar{x} \pm 1.8\sigma$, usarei a biblioteca padrão *Statistics* para as funções média e desvio padrão.
+
+Veja graficamente o comportamento da técnica.
 """
+
+# ╔═╡ fefb36a5-5919-4709-a2b1-c8cda172e5c5
+plts = Vector{Any}(undef, 14)
+
+# ╔═╡ 8d7429fd-13c5-4bf2-9c49-1b00f71fae37
+begin
+	n_elem = 1:length(dados.serie)
+	for i in n_elem
+		plts[i] = scatter(
+			dados.serie[i].dataset[!, :DATE], 
+			dados.serie[i].dataset[!, :ADSOLPW]
+		)
+	end
+	p1=plot(
+		plts...,
+		size=(1000,3500),
+		layout=(7,2),
+		legend=false, 
+		font=10
+	)
+	xlabel!(":DATE")
+	ylabel!(":ADSOLPW")
+end
+
+# ╔═╡ c9e64e6d-3833-4c5b-a821-998675a2faac
+md"Criando uma cópia dos dados."
+
+# ╔═╡ a437ca1d-4a2b-49cf-90d4-c64061a40af3
+cp_dados = deepcopy(dados);
+
+# ╔═╡ fd71b0f7-e346-4960-acb9-7d139fc5d507
+begin
+	#concatenação das séries
+	using DataFrames
+	new_df = vcat([i.dataset[!,[:DATE, :ADSOLPW]] for i in cp_dados.serie]...);
+end
+
+# ╔═╡ dba9656f-ac9d-430e-9757-859686fe74b8
+for i in n_elem
+	#= 
+		Definie uma função local e mutável a cada iteração que verifica se cada
+		elemento da coluna :ADSOLPW pertence ao intervalo descrito acima.
+	=#
+	function ftcrp(x)
+		med = mean(cp_dados.serie[i].dataset[!,:ADSOLPW])
+		desv = std(cp_dados.serie[i].dataset[!,:ADSOLPW])
+		if(med - 2 * desv) < x < (med + 1.8 * desv)
+			true
+		else
+			false
+		end
+	end
+	filter!(:ADSOLPW => ftcrp, cp_dados.serie[i].dataset)
+end
+
+# ╔═╡ d10d6243-f387-4c82-86c8-1d5e70f75d91
+begin
+	for i in n_elem
+		plts[i] = scatter(
+			dados.serie[i].dataset[!, :DATE], 
+			dados.serie[i].dataset[!, :ADSOLPW]
+		)
+	end
+	p2=plot(
+		plts...,
+		size=(1000,3500),
+		layout=(7,2),
+		legend=false, 
+		font=10
+	)
+	xlabel!(":DATE")
+	ylabel!(":ADSOLPW")
+end
+
+# ╔═╡ 57df07be-89e9-4e62-948a-158f294d1a0c
+md"""
+## Empilhamento de dados para *forecasting* e persistência
+
+Até este ponto não usamos recurso de persistência de dados para o armazenamento das séries. 
+
+Uma função mais especializada nestas séries já está sendo implementada em um *branch* pessoal do pacote, no entanto para este trabalho faremos isso criando um arquivo `.csv` simples para armazenar todos as séries de forma contínua. Para a utilização 
+do método ARIMA sasonal utilizaremos apenas as colunas `:DATE` e `:ADSOLPW`.
+"""
+
+# ╔═╡ 2f2c234b-25b1-47d3-a931-06cf9c9d884c
+md"Aqui tem-se em `new_df` os dados serializados, conforme pode ser visto no gráfico."
+
+# ╔═╡ 0a3b911b-ef65-4b1e-83e2-3f4c8623a029
+scatter(new_df[1:2500,:DATE], new_df[1:2500, :ADSOLPW]+new_df[1:2500, :ADSOLPW], legend=false, ms=2.)
+
+# ╔═╡ e29cf5c1-370e-4bf7-b09b-817eeeb9e822
+begin
+	xlabel!("Data da Medida")
+	ylabel!("Radiação Solar")
+end
 
 # ╔═╡ Cell order:
 # ╟─567996a6-b39b-11ed-19aa-271fe00ed366
@@ -120,14 +227,26 @@ Faça o mesmo para as outras colunas da tabela.
 # ╠═50e894e2-97b1-489b-a629-be2720fb5b9c
 # ╟─58fdcc2a-c3ce-4ac4-8f8c-17021d8ee1cb
 # ╠═55a98bfb-c445-4c24-9dd9-11c24404c980
-# ╠═88086dd5-d13a-4c0f-9748-e0651503ddd0
+# ╟─88086dd5-d13a-4c0f-9748-e0651503ddd0
 # ╠═37690607-9375-4792-86a5-fca71af27c84
-# ╠═402726b0-4531-4d86-840d-d33ccb9a1a96
+# ╟─402726b0-4531-4d86-840d-d33ccb9a1a96
 # ╠═1d3d4288-3c6c-429a-83d0-331d0ccda111
 # ╟─feeba7f7-2208-4281-8dce-ce2ba5fd8830
 # ╠═7095bdb2-b186-441b-97d4-6fd368d4900c
-# ╠═8c4403b4-71b0-4f4d-a05d-7188c6406c46
+# ╠═2e5ea967-aec4-4563-b4f0-7b55ce91523e
 # ╠═8a46c032-afcb-4dd8-9792-112f432bb3cd
-# ╠═ef44d739-4ad3-4532-bc38-bff48f53caba
+# ╟─ef44d739-4ad3-4532-bc38-bff48f53caba
 # ╠═3fe774e9-662b-41d4-b1f4-e48dbfdbe592
 # ╠═0d6eaf2b-5f63-4140-92e4-23354dd466c9
+# ╠═1dc4a3f6-9fc0-44d8-9b8d-36a2bda51084
+# ╠═fefb36a5-5919-4709-a2b1-c8cda172e5c5
+# ╠═8d7429fd-13c5-4bf2-9c49-1b00f71fae37
+# ╟─c9e64e6d-3833-4c5b-a821-998675a2faac
+# ╠═a437ca1d-4a2b-49cf-90d4-c64061a40af3
+# ╠═dba9656f-ac9d-430e-9757-859686fe74b8
+# ╠═d10d6243-f387-4c82-86c8-1d5e70f75d91
+# ╠═57df07be-89e9-4e62-948a-158f294d1a0c
+# ╠═fd71b0f7-e346-4960-acb9-7d139fc5d507
+# ╠═2f2c234b-25b1-47d3-a931-06cf9c9d884c
+# ╠═0a3b911b-ef65-4b1e-83e2-3f4c8623a029
+# ╠═e29cf5c1-370e-4bf7-b09b-817eeeb9e822
