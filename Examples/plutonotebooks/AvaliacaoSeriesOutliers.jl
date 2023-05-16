@@ -47,7 +47,7 @@ Devido ao grande conjunto de dados, este experimento pode demmandar alguns minut
 # ╔═╡ 55a98bfb-c445-4c24-9dd9-11c24404c980
 begin
 	fonte_dados = statusINMET();
-	dados = obter_dados(fonte_dados, ["FORMIGA"], 2010:2023);
+	dados = obter_dados(fonte_dados, ["FORMIGA"], 2010:2023)
 	ajst_colnames!(dados);
 	treat_data!(dados);
 end
@@ -212,7 +212,7 @@ do método ARIMA sasonal utilizaremos apenas as colunas `:DATE` e `:ADSOLPW`.
 md"Aqui tem-se em `new_df` os dados serializados, conforme pode ser visto no gráfico."
 
 # ╔═╡ 0a3b911b-ef65-4b1e-83e2-3f4c8623a029
-scatter(new_df[1:2500,:DATE], new_df[1:2500, :ADSOLPW]+new_df[1:2500, :ADSOLPW], legend=false, ms=2.)
+scatter(new_df[!,:DATE], new_df[!, :ADSOLPW], legend=false, ms=2.)
 
 # ╔═╡ e29cf5c1-370e-4bf7-b09b-817eeeb9e822
 begin

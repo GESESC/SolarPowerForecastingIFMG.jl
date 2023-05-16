@@ -60,9 +60,7 @@ Uma tupla nomeada com os percentuais de truncagem (tr) e validação (vd).
 """
 function treat_data!(
     sercid::SerieCidades, 
-    metodo::Symbol = :torres; 
-    tr::Float64 =.7, 
-    vd::Float64 =.3
+    metodo::Symbol = :torres
 )
     for (i,s) in enumerate(sercid.serie)
         cpy_dataset = copy(s.dataset)
@@ -91,7 +89,12 @@ function treat_data!(
 
             # Substitui missings por zeros 
             for (id, col) in enumerate(eachcol(cpy_dataset))
-                cpy_dataset[:,id] = replace(col, missing => 0.)
+                cpy_dataset[:,id] = replace(
+                    col, 
+                    missing => 0., 
+                    -9999 => 0.,
+                    -9999.0 => 0.
+                )
             end
 
             # Rotina para agrupamento de dados diários
@@ -109,7 +112,11 @@ function treat_data!(
 
             for dt in eachrow(dates_uniq)
                 void_df = DataFrame()
-                df_locday = subset(cpy_dataset, :DATE => day -> day .== dt[:DATE])
+                df_locday = subset(
+                    cpy_dataset, 
+                    :DATE => day -> day .== dt[:DATE]
+                )
+
                 df_locday[!,:DATE] = [
                         mod_date(d) for d in df_locday[!,:DATE]
                 ]
