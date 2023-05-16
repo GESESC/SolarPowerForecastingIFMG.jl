@@ -252,7 +252,7 @@ end
 md"Salvando os dados em formato `.csv`, se necessário adicione o pacote CSV."
 
 # ╔═╡ Cell order:
-# ╟─567996a6-b39b-11ed-19aa-271fe00ed366
+# ╠═567996a6-b39b-11ed-19aa-271fe00ed366
 # ╟─48d2a230-110c-4c78-99a8-a7cadbe3cad6
 # ╠═2e16a029-4476-4146-a75a-98748f41f5cc
 # ╠═50e894e2-97b1-489b-a629-be2720fb5b9c
