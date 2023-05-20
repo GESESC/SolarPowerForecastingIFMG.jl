@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.25
+# v0.19.26
 
 using Markdown
 using InteractiveUtils
@@ -50,7 +50,7 @@ Devido ao grande conjunto de dados, este experimento pode demmandar alguns minut
 # ╔═╡ 55a98bfb-c445-4c24-9dd9-11c24404c980
 begin
 	fonte_dados = statusINMET();
-	dados = obter_dados(fonte_dados, ["FORMIGA"], 2010:2023)
+	dados = obter_dados(fonte_dados, ["FORMIGA"], 2019:2023)
 	ajst_colnames!(dados);
 	treat_data!(dados);
 end
@@ -97,8 +97,8 @@ Pode ser necessária a instalação do *backend* para gráficos interativos.
 
 # ╔═╡ 8a46c032-afcb-4dd8-9792-112f432bb3cd
 p = scatter(
-	dados.serie[6].dataset[!, :DATE], 
-	dados.serie[6].dataset[!, :ADSOLPW], 
+	dados.serie[4].dataset[!, :DATE], 
+	dados.serie[4].dataset[!, :ADSOLPW], 
 	label="Coluna - $(String(:ADSOLPW))",
 	ms = 1.8
 )
@@ -109,7 +109,7 @@ Modifique o número da série para valores abaixo de 10 (até 1) e acima de 10 (
 """
 
 # ╔═╡ 3fe774e9-662b-41d4-b1f4-e48dbfdbe592
-println(dados.serie[9].ano)
+println(dados.serie[4].ano)
 
 # ╔═╡ 0d6eaf2b-5f63-4140-92e4-23354dd466c9
 md"""
@@ -129,7 +129,7 @@ Veja graficamente o comportamento da técnica.
 """
 
 # ╔═╡ fefb36a5-5919-4709-a2b1-c8cda172e5c5
-plts = Vector{Any}(undef, 14)
+plts = Vector{Any}(undef, 5)
 
 # ╔═╡ 8d7429fd-13c5-4bf2-9c49-1b00f71fae37
 begin

@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.25
+# v0.19.26
 
 using Markdown
 using InteractiveUtils
@@ -10,9 +10,6 @@ begin
 	Pkg.activate("/home/reginaldo/Insync/Trabalho/IFMG/IFMG_ARCOS/TCCs/TCCVitinho/SolarPowerForecastingIFMG.jl/Test/dev_env")
 end
 
-# ╔═╡ 5c727255-8048-48cd-a936-ae07ea825bf3
-Pkg.add("Forecast")
-
 # ╔═╡ 10578541-40b5-4ed1-a42f-80cb1a6bd61f
 using CSV, DataFrames
 
@@ -20,7 +17,7 @@ using CSV, DataFrames
 using SolarPowerForecastingIFMG.TruncagemDeDados: split_df
 
 # ╔═╡ 1a3e9cf3-a70c-43d6-a437-711c467e003b
-using StateSpaceModels, Forecast
+using StateSpaceModels
 
 # ╔═╡ da0be4a8-f412-11ed-3cf4-2f2491c97b63
 md"""
@@ -79,41 +76,25 @@ md"O processo de divisão pode ser inspecionado visualmente."
 # ╔═╡ 6765d277-7871-4506-9ec3-7fb5dc85424a
 md"#Decomposição da Série."
 
-# ╔═╡ 096fb652-5227-4365-82b0-708838bba139
+# ╔═╡ b145f87f-db82-4f8b-9e9b-3e68d3fc99f2
+model = auto_arima(trs_df[!, :ADSOLPW])
 
-
-# ╔═╡ ee63347e-8a1d-42a9-a2bd-f738d858e056
-model = UnobservedComponents(log.(trs_df[!,:ADSOLPW]); trend = "local level", cycle = "stochastic")
-
-# ╔═╡ d4bcb812-f73e-4557-81b7-454b09c849a4
+# ╔═╡ ab8e80a4-c736-4ac1-8417-e1a78cfe9c68
 fit!(model)
 
-# ╔═╡ 8e12a5c8-251a-4a18-9e18-fbbca7ad2625
-ks = kalman_smoother(model)
+# ╔═╡ 7c18eb0e-ef92-4c39-9f34-277244c3c28d
+model
 
-# ╔═╡ 194a42de-9c84-4e30-af97-ed4d52422982
-plot(model)
+# ╔═╡ b9d374ff-f022-4b67-af71-b36c72efa66e
+forec = forecast(model, 1000)
 
-# ╔═╡ e7716c95-d8d8-424f-a8a9-ab4ab6411268
-plot(model, ks)
+# ╔═╡ 1a9c5292-6a7e-4260-b674-8226cb6d697d
+plot(model, forec; legend = :topleft)
 
-# ╔═╡ 21776668-b9e8-4177-a19e-757c791ebf23
-
-
-# ╔═╡ 0e3ca447-c2a6-41ef-b5f4-c9b0ae241c60
-kf = kalman_filter(model)
-
-# ╔═╡ 658d8991-ce79-44c3-86f7-2d36614695a2
-plotdiagnostics(kf)
-
-# ╔═╡ 4e6296da-b2a1-4747-831b-38f5122b381f
-
-
-# ╔═╡ 018599a0-293b-41c1-8cf5-4600f79b20e5
-
-
-# ╔═╡ dc75aed7-ed6e-4f29-8b7c-2032ae914337
-
+# ╔═╡ 27440268-cbad-4f73-ae65-150466167949
+plot!(tst_df[!,:DATE], 
+		tst_df[!, :ADSOLPW], 
+		label="Test Set",)
 
 # ╔═╡ Cell order:
 # ╠═da0be4a8-f412-11ed-3cf4-2f2491c97b63
@@ -126,18 +107,11 @@ plotdiagnostics(kf)
 # ╠═fa1b757f-f13d-4d38-bef3-d61795c78070
 # ╠═41897928-3b19-4438-9978-3035a0e365db
 # ╠═c3a7bd86-ec7c-4047-8460-d2d3487aea13
-# ╠═5c727255-8048-48cd-a936-ae07ea825bf3
 # ╠═6765d277-7871-4506-9ec3-7fb5dc85424a
 # ╠═1a3e9cf3-a70c-43d6-a437-711c467e003b
-# ╠═096fb652-5227-4365-82b0-708838bba139
-# ╠═ee63347e-8a1d-42a9-a2bd-f738d858e056
-# ╠═d4bcb812-f73e-4557-81b7-454b09c849a4
-# ╠═8e12a5c8-251a-4a18-9e18-fbbca7ad2625
-# ╠═194a42de-9c84-4e30-af97-ed4d52422982
-# ╠═e7716c95-d8d8-424f-a8a9-ab4ab6411268
-# ╠═21776668-b9e8-4177-a19e-757c791ebf23
-# ╠═0e3ca447-c2a6-41ef-b5f4-c9b0ae241c60
-# ╠═658d8991-ce79-44c3-86f7-2d36614695a2
-# ╠═4e6296da-b2a1-4747-831b-38f5122b381f
-# ╠═018599a0-293b-41c1-8cf5-4600f79b20e5
-# ╠═dc75aed7-ed6e-4f29-8b7c-2032ae914337
+# ╠═b145f87f-db82-4f8b-9e9b-3e68d3fc99f2
+# ╠═ab8e80a4-c736-4ac1-8417-e1a78cfe9c68
+# ╠═7c18eb0e-ef92-4c39-9f34-277244c3c28d
+# ╠═b9d374ff-f022-4b67-af71-b36c72efa66e
+# ╠═1a9c5292-6a7e-4260-b674-8226cb6d697d
+# ╠═27440268-cbad-4f73-ae65-150466167949
