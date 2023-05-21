@@ -23,13 +23,13 @@ begin
 	gr()
 end
 
-# ╔═╡ 1dc4a3f6-9fc0-44d8-9b8d-36a2bda51084
-using Statistics
+# ╔═╡ 73d245d6-82c3-46e1-ad9c-8e231a02cb44
+using MLJ,OutlierDetection
 
 # ╔═╡ 567996a6-b39b-11ed-19aa-271fe00ed366
 md"""
 # TCC - Victor Gonçalves
-## Avaliando séries e *outliers*
+## Avaliando séries e *outliers*  
 Autor: Prof. Dr. Reginaldo Gonçalves Leão Junior
 """
 
@@ -52,7 +52,7 @@ begin
 	fonte_dados = statusINMET();
 	dados = obter_dados(fonte_dados, ["FORMIGA"], 2019:2023)
 	ajst_colnames!(dados);
-	treat_data!(dados);
+	treat_data!(dados);0
 end
 
 # ╔═╡ 88086dd5-d13a-4c0f-9748-e0651503ddd0
@@ -95,12 +95,19 @@ Pode ser necessária a instalação do *backend* para gráficos interativos.
 #	Pkg.add("PlotlyKaleido")
 #end
 
+# ╔═╡ a995ffa0-d0d2-4c57-b54d-44ad60dd924a
+
+
 # ╔═╡ 8a46c032-afcb-4dd8-9792-112f432bb3cd
 p = scatter(
 	dados.serie[4].dataset[!, :DATE], 
 	dados.serie[4].dataset[!, :ADSOLPW], 
 	label="Coluna - $(String(:ADSOLPW))",
-	ms = 1.8
+	markersize=3,
+	markeralpha = 0.4,
+	markerstrokewidth = 0.2,
+    markerstrokealpha = 0.2,
+	font=10
 )
 
 # ╔═╡ ef44d739-4ad3-4532-bc38-bff48f53caba
@@ -129,7 +136,7 @@ Veja graficamente o comportamento da técnica.
 """
 
 # ╔═╡ fefb36a5-5919-4709-a2b1-c8cda172e5c5
-plts = Vector{Any}(undef, 5)
+plts = Vector{Any}(undef, length(dados.serie))
 
 # ╔═╡ 8d7429fd-13c5-4bf2-9c49-1b00f71fae37
 begin
@@ -144,7 +151,7 @@ begin
 	p1=plot(
 		plts...,
 		size=(1000,1000),
-		layout=(4,4),
+		layout=(3,3),
 		legend=false,
 		markersize=3,
 		markeralpha = 0.4,
@@ -166,7 +173,7 @@ cp_dados = deepcopy(dados);
 begin
 	#concatenação das séries
 	using DataFrames
-	new_df = vcat([i.dataset[!,[:DATE, :ADSOLPW]] for i in cp_dados.serie]...);
+	new_df = vcat([i.dataset for i in cp_dados.serie]...);
 end
 
 # ╔═╡ 7a3441c9-8f3a-4d99-8f35-c9a8bfe17bb4
@@ -175,8 +182,19 @@ begin
 	CSV.write("DataForm2010To2023.csv", new_df)
 end
 
+# ╔═╡ ac9ab6d3-bb1e-4c1a-920a-e3996a20ac03
+#=for i in 1:length(cp_dados.serie)
+	cp_dados.serie[i].dataset[!,:ADSOLPW]= map(
+		log, 
+		cp_dados.serie[i].dataset[!,:ADSOLPW]
+	)
+end=#
+
+# ╔═╡ 1276c9e9-e9e8-4f08-adb3-29c9dbc82d28
+#using Statistics
+
 # ╔═╡ dba9656f-ac9d-430e-9757-859686fe74b8
-for i in n_elem
+#=for i in n_elem
 	#= 
 		Definie uma função local e mutável a cada iteração que verifica se cada
 		elemento da coluna :ADSOLPW pertence ao intervalo descrito acima.
@@ -184,14 +202,14 @@ for i in n_elem
 	function ftcrp(x)
 		med = mean(cp_dados.serie[i].dataset[!,:ADSOLPW])
 		desv = std(cp_dados.serie[i].dataset[!,:ADSOLPW])
-		if(med - 2 * desv) < x < (med + 1.8 * desv)
+		if(med - 2. * desv) < x < (med + 2. * desv)
 			true
 		else
 			false
 		end
 	end
 	filter!(:ADSOLPW => ftcrp, cp_dados.serie[i].dataset)
-end
+end=
 
 # ╔═╡ d10d6243-f387-4c82-86c8-1d5e70f75d91
 begin
@@ -205,7 +223,7 @@ begin
 	p2=plot(
 		plts...,
 		size=(1000,1000),
-		layout=(4,4),
+		layout=(3,2),
 		legend=false,
 		markersize=3,
 		markeralpha = 0.4,
@@ -227,6 +245,9 @@ Uma função mais especializada nestas séries já está sendo implementada em u
 do método ARIMA sasonal utilizaremos apenas as colunas `:DATE` e `:ADSOLPW`.
 """
 
+# ╔═╡ d9a40c64-d88b-4214-b29e-aaa38ed0c1b0
+typeof(new_df)
+
 # ╔═╡ 2f2c234b-25b1-47d3-a931-06cf9c9d884c
 md"Aqui tem-se em `new_df` os dados serializados, conforme pode ser visto no gráfico."
 
@@ -245,8 +266,11 @@ scatter(
 # ╔═╡ e29cf5c1-370e-4bf7-b09b-817eeeb9e822
 begin
 	xlabel!("Data da Medida")
-	ylabel!("Radiação Solar[kJ/m²]")
+	ylabel!("Radiação Solar log[kJ/m²]")
 end
+
+# ╔═╡ 28965786-4180-4b1b-b7c3-66491165b7bb
+train, test = split_df(new_df; frac = 0.5)
 
 # ╔═╡ c3c776a0-510a-4695-aede-4ab597219362
 md"Salvando os dados em formato `.csv`, se necessário adicione o pacote CSV."
@@ -265,22 +289,27 @@ md"Salvando os dados em formato `.csv`, se necessário adicione o pacote CSV."
 # ╟─feeba7f7-2208-4281-8dce-ce2ba5fd8830
 # ╠═7095bdb2-b186-441b-97d4-6fd368d4900c
 # ╠═2e5ea967-aec4-4563-b4f0-7b55ce91523e
+# ╠═a995ffa0-d0d2-4c57-b54d-44ad60dd924a
 # ╠═8a46c032-afcb-4dd8-9792-112f432bb3cd
 # ╟─ef44d739-4ad3-4532-bc38-bff48f53caba
 # ╠═3fe774e9-662b-41d4-b1f4-e48dbfdbe592
 # ╠═0d6eaf2b-5f63-4140-92e4-23354dd466c9
-# ╠═1dc4a3f6-9fc0-44d8-9b8d-36a2bda51084
 # ╠═fefb36a5-5919-4709-a2b1-c8cda172e5c5
 # ╠═8d7429fd-13c5-4bf2-9c49-1b00f71fae37
 # ╟─c9e64e6d-3833-4c5b-a821-998675a2faac
 # ╠═a437ca1d-4a2b-49cf-90d4-c64061a40af3
+# ╠═ac9ab6d3-bb1e-4c1a-920a-e3996a20ac03
+# ╠═1276c9e9-e9e8-4f08-adb3-29c9dbc82d28
 # ╠═dba9656f-ac9d-430e-9757-859686fe74b8
 # ╠═d10d6243-f387-4c82-86c8-1d5e70f75d91
 # ╠═57df07be-89e9-4e62-948a-158f294d1a0c
 # ╠═fd71b0f7-e346-4960-acb9-7d139fc5d507
+# ╠═d9a40c64-d88b-4214-b29e-aaa38ed0c1b0
 # ╠═2f2c234b-25b1-47d3-a931-06cf9c9d884c
 # ╠═0a3b911b-ef65-4b1e-83e2-3f4c8623a029
 # ╠═e29cf5c1-370e-4bf7-b09b-817eeeb9e822
+# ╠═73d245d6-82c3-46e1-ad9c-8e231a02cb44
+# ╠═28965786-4180-4b1b-b7c3-66491165b7bb
 # ╠═c3c776a0-510a-4695-aede-4ab597219362
 # ╠═e767cc7a-9afc-4d32-8705-bc00b2beccd6
 # ╠═7a3441c9-8f3a-4d99-8f35-c9a8bfe17bb4

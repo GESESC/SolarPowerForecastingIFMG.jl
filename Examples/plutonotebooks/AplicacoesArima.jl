@@ -16,29 +16,11 @@ using CSV, DataFrames
 # ╔═╡ 1b24b467-4f29-4b38-9ba9-93c3d5a73749
 using SolarPowerForecastingIFMG.TruncagemDeDados: split_df
 
-# ╔═╡ 1a3e9cf3-a70c-43d6-a437-711c467e003b
-using StateSpaceModels
-
-# ╔═╡ da0be4a8-f412-11ed-3cf4-2f2491c97b63
-md"""
-# TCC - Victor Gonçalves
-## Técnicas de *Forecasting*
-Autor: Prof. Dr. Reginaldo Gonçalves Leão Junior
-
-No processo de tratamento dos *outliers* criamos um arquivo `.csv` para o armazenamento dos dados salvos, iniciaremos pelo carregamento deste arquivo mais uma vez na memória e separação dos dados de treinamento e teste.
-"""
-
-# ╔═╡ ceef7372-7e9b-4c4e-bd5b-803918521e28
-md"## Training Set e Test Set"
-
-# ╔═╡ 0ce0f62f-4c3d-456a-8421-1869d5bb03bd
-df = CSV.read("/home/reginaldo/Insync/Trabalho/IFMG/IFMG_ARCOS/TCCs/TCCVitinho/SolarPowerForecastingIFMG.jl/Examples/plutonotebooks/DataForm2010To2023.csv", DataFrame);
-
-# ╔═╡ 97c596e8-413c-4a0b-9a0c-7192ed313ddc
-md"Agora, usando a função `split_df` de nosso pacote, vamos dividir a série em *training set* e *test set*."
-
-# ╔═╡ fa1b757f-f13d-4d38-bef3-d61795c78070
-trs_df, tst_df = split_df(df)
+# ╔═╡ 0d5eb1c9-4c31-4334-914d-f8201d844dd4
+begin
+	using MLJ
+	using OutlierDetection
+end
 
 # ╔═╡ c3a7bd86-ec7c-4047-8460-d2d3487aea13
 begin
@@ -69,6 +51,45 @@ begin
 	xlabel!("Data da Medida")
 	ylabel!("Radiação Solar[kJ/m²]")
 end
+
+# ╔═╡ da0be4a8-f412-11ed-3cf4-2f2491c97b63
+md"""
+# TCC - Victor Gonçalves
+## Técnicas de *Forecasting*
+Autor: Prof. Dr. Reginaldo Gonçalves Leão Junior
+
+No processo de tratamento dos *outliers* criamos um arquivo `.csv` para o armazenamento dos dados salvos, iniciaremos pelo carregamento deste arquivo mais uma vez na memória e separação dos dados de treinamento e teste.
+"""
+
+# ╔═╡ ceef7372-7e9b-4c4e-bd5b-803918521e28
+md"## Training Set e Test Set"
+
+# ╔═╡ 0ce0f62f-4c3d-456a-8421-1869d5bb03bd
+df = CSV.read("/home/reginaldo/Insync/Trabalho/IFMG/IFMG_ARCOS/TCCs/TCCVitinho/SolarPowerForecastingIFMG.jl/Examples/plutonotebooks/DataForm2010To2023.csv", DataFrame);
+
+# ╔═╡ 97c596e8-413c-4a0b-9a0c-7192ed313ddc
+md"Agora, usando a função `split_df` de nosso pacote, vamos dividir a série em *training set* e *test set*."
+
+# ╔═╡ d89726de-3ab1-45f4-95b9-52fa34827f50
+begin
+	KNN = @iload KNNDetector pkg=OutlierDetectionNeighbors
+	knn = KNN()
+end
+
+# ╔═╡ 7419d18b-54ed-46da-96d6-8f68a51e1fcd
+knn_classifier = machine(DeterministicDetector(knn), select(df, Not(:DATE))) |> fit!
+
+# ╔═╡ 8c309105-1cb0-419b-b22a-7b023a75af84
+outliers = predict(knn_classifier)
+
+# ╔═╡ a6946d0c-3df8-4d75-aca9-3b0f2694839e
+
+
+# ╔═╡ 4ea4e212-7b91-499e-8751-c85700d45d03
+typeof(a)
+
+# ╔═╡ 5ab04a57-6ae4-4a82-87fb-6b78899e7f8a
+df_new = hcat(df, DataFrame(String.(outliers), [:OUTLIER_YN]))
 
 # ╔═╡ 41897928-3b19-4438-9978-3035a0e365db
 md"O processo de divisão pode ser inspecionado visualmente."
@@ -104,11 +125,16 @@ plot!(tst_df[!,:DATE],
 # ╠═0ce0f62f-4c3d-456a-8421-1869d5bb03bd
 # ╠═97c596e8-413c-4a0b-9a0c-7192ed313ddc
 # ╠═1b24b467-4f29-4b38-9ba9-93c3d5a73749
-# ╠═fa1b757f-f13d-4d38-bef3-d61795c78070
+# ╠═0d5eb1c9-4c31-4334-914d-f8201d844dd4
+# ╠═d89726de-3ab1-45f4-95b9-52fa34827f50
+# ╠═7419d18b-54ed-46da-96d6-8f68a51e1fcd
+# ╠═8c309105-1cb0-419b-b22a-7b023a75af84
+# ╠═a6946d0c-3df8-4d75-aca9-3b0f2694839e
+# ╠═4ea4e212-7b91-499e-8751-c85700d45d03
+# ╠═5ab04a57-6ae4-4a82-87fb-6b78899e7f8a
 # ╠═41897928-3b19-4438-9978-3035a0e365db
 # ╠═c3a7bd86-ec7c-4047-8460-d2d3487aea13
 # ╠═6765d277-7871-4506-9ec3-7fb5dc85424a
-# ╠═1a3e9cf3-a70c-43d6-a437-711c467e003b
 # ╠═b145f87f-db82-4f8b-9e9b-3e68d3fc99f2
 # ╠═ab8e80a4-c736-4ac1-8417-e1a78cfe9c68
 # ╠═7c18eb0e-ef92-4c39-9f34-277244c3c28d
