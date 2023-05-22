@@ -85,11 +85,8 @@ outliers = predict(knn_classifier)
 # ╔═╡ a6946d0c-3df8-4d75-aca9-3b0f2694839e
 
 
-# ╔═╡ 4ea4e212-7b91-499e-8751-c85700d45d03
-typeof(a)
-
 # ╔═╡ 5ab04a57-6ae4-4a82-87fb-6b78899e7f8a
-df_new = hcat(df, DataFrame(String.(outliers), [:OUTLIER_YN]))
+df_new = hcat(df, DataFrame([String.(outliers)], [:OUTLIER_YN]))
 
 # ╔═╡ 41897928-3b19-4438-9978-3035a0e365db
 md"O processo de divisão pode ser inspecionado visualmente."
@@ -130,7 +127,6 @@ plot!(tst_df[!,:DATE],
 # ╠═7419d18b-54ed-46da-96d6-8f68a51e1fcd
 # ╠═8c309105-1cb0-419b-b22a-7b023a75af84
 # ╠═a6946d0c-3df8-4d75-aca9-3b0f2694839e
-# ╠═4ea4e212-7b91-499e-8751-c85700d45d03
 # ╠═5ab04a57-6ae4-4a82-87fb-6b78899e7f8a
 # ╠═41897928-3b19-4438-9978-3035a0e365db
 # ╠═c3a7bd86-ec7c-4047-8460-d2d3487aea13
