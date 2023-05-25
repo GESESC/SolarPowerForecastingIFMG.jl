@@ -7,48 +7,81 @@ using InteractiveUtils
 # ╔═╡ abab40f4-f836-11ed-2a23-3f25c5ff92fd
 begin
 	using Pkg
-	Pkg.activate("/home/reginaldo/Insync/Trabalho/IFMG/IFMG_ARCOS/TCCs/TCCVitinho/SolarPowerForecastingIFMG.jl/Test/dev_env")
+	Pkg.activate("/home/reginaldo/Documentos/SolarPowerForecastingIFMG.jl/Test/dev_env")
 end
 
-# ╔═╡ d7de2de4-27e7-4464-ad47-80d7e8e34af9
-Pkg.add("Flux")
+# ╔═╡ 7d4a87ae-51c5-4101-8bbf-64da2b5a1c0f
+using Flux, Plots, CSV, DataFrames, SolarPowerForecastingIFMG.TruncagemDeDados
 
-# ╔═╡ 2aca5614-e3b3-4fbf-a40e-b3286d1349da
-using CSV, DataFrames
+# ╔═╡ f7d97ecb-dffd-4310-a138-1e865efb1be3
+data = CSV.read("/home/reginaldo/Documentos/SolarPowerForecastingIFMG.jl/Examples/plutonotebooks/DataForm2010To2023.csv", DataFrame)
 
-# ╔═╡ 63bf260c-7222-4153-a508-fbc1cf71996e
-using Flux
+# ╔═╡ 26ea351d-51b1-4f0d-a0c9-a829fcbcd8c4
+train, test = split_df(data[!, Not([:DATE, :OUTLIER_YN])])
 
-# ╔═╡ e546881d-2b0a-4b8b-a27e-fbbad765fa04
-using SolarPowerForecastingIFMG.TruncagemDeDados
+# ╔═╡ e0b364bc-1bf2-4e4a-a9cf-aa84cf8e12ef
+function form_data(r_df)
+	vals = Float32.(values(r_df))
+	vals = getindex(vals, [2,1,3,4])
+	return vals
+	#return reshape([vals...], (4,1))
+end
 
-# ╔═╡ 05cda84a-b134-4eba-8d37-e7a159e9fd67
-df = CSV.read("/home/reginaldo/Insync/Trabalho/IFMG/IFMG_ARCOS/TCCs/TCCVitinho/SolarPowerForecastingIFMG.jl/Examples/plutonotebooks/DataForm2010To2023.csv",DataFrame)
+# ╔═╡ d8da6f71-b414-4619-aa4a-1b9fb1a16df3
+nw_train = [form_data(i) for i in eachrow(train)]
+#nw_train = Flux.DataLoader((train[!,:ADSOLPW], train[!,Not(:ADSOLPW)]), batchsize=4)
 
-# ╔═╡ 4f5e20ca-1ef5-4af5-a7c4-a66224732543
-train, test = split_df(df)
+# ╔═╡ 07f5031a-d1c1-4de9-ad54-9f49b57a8304
+obsrv, features = size(train)
 
-# ╔═╡ 709eb160-68f2-4520-a91f-ee3a0f1eedc6
-rnn = Flux.RNNCell(4,1)
+# ╔═╡ e3b532d5-2ff1-49df-9e2d-7e204ad35856
+model = Chain(
+	LSTM(features => 10),
+	LSTM(10 => 1)
+)
 
-# ╔═╡ 6511e6c6-376c-4ff6-86ef-5877ccf99f11
-model = Flux.Recur(rnn, train[!, Not([:DATE, :OUTLIER_YN])])
+# ╔═╡ a1a7a7e7-ab61-4ecb-b59f-e367202b0d6d
+params = Flux.params(model)
 
-# ╔═╡ dcfe3fac-092c-443b-b854-d5847f41812c
-predito = model(train[!,:DATE])
+# ╔═╡ cbf60840-f8c3-456b-ac1e-b99603dac13e
+opt = Flux.setup(Adam(), model)
 
-# ╔═╡ 87ca19c6-e041-4a77-86af-2c93467b3d83
+# ╔═╡ 3f40b150-98c9-4bb9-9846-668fc30ff401
+loss(x, y) = sum((model(x) .- y).^2)
 
+# ╔═╡ 6c10f679-1482-4deb-9665-7ece6e6380de
+for d in nw_train
+	println(size(d, 1))
+	grads = Flux.gradient(model) do m
+		result = m([d...])
+		loss(result, d[1])
+	end
+	Flux.update!(opt, model, grads[1])
+end
+
+# ╔═╡ 4267d684-d727-4446-8b4f-25836aa3babf
+# ╠═╡ disabled = true
+#=╠═╡
+a = (1,2,3)
+  ╠═╡ =#
+
+# ╔═╡ b44ec80a-0d9d-4544-b341-15231e0f8293
+#=╠═╡
+[a...]
+  ╠═╡ =#
 
 # ╔═╡ Cell order:
 # ╠═abab40f4-f836-11ed-2a23-3f25c5ff92fd
-# ╠═d7de2de4-27e7-4464-ad47-80d7e8e34af9
-# ╠═2aca5614-e3b3-4fbf-a40e-b3286d1349da
-# ╠═05cda84a-b134-4eba-8d37-e7a159e9fd67
-# ╠═63bf260c-7222-4153-a508-fbc1cf71996e
-# ╠═e546881d-2b0a-4b8b-a27e-fbbad765fa04
-# ╠═4f5e20ca-1ef5-4af5-a7c4-a66224732543
-# ╠═709eb160-68f2-4520-a91f-ee3a0f1eedc6
-# ╠═6511e6c6-376c-4ff6-86ef-5877ccf99f11
-# ╠═dcfe3fac-092c-443b-b854-d5847f41812c
-# ╠═87ca19c6-e041-4a77-86af-2c93467b3d83
+# ╠═7d4a87ae-51c5-4101-8bbf-64da2b5a1c0f
+# ╠═f7d97ecb-dffd-4310-a138-1e865efb1be3
+# ╠═26ea351d-51b1-4f0d-a0c9-a829fcbcd8c4
+# ╠═e0b364bc-1bf2-4e4a-a9cf-aa84cf8e12ef
+# ╠═d8da6f71-b414-4619-aa4a-1b9fb1a16df3
+# ╠═07f5031a-d1c1-4de9-ad54-9f49b57a8304
+# ╠═e3b532d5-2ff1-49df-9e2d-7e204ad35856
+# ╠═a1a7a7e7-ab61-4ecb-b59f-e367202b0d6d
+# ╠═cbf60840-f8c3-456b-ac1e-b99603dac13e
+# ╠═3f40b150-98c9-4bb9-9846-668fc30ff401
+# ╠═6c10f679-1482-4deb-9665-7ece6e6380de
+# ╠═4267d684-d727-4446-8b4f-25836aa3babf
+# ╠═b44ec80a-0d9d-4544-b341-15231e0f8293
