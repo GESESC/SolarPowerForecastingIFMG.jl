@@ -222,6 +222,7 @@ begin
 	#concatenação das séries
 	using DataFrames
 	new_df = vcat([i.dataset for i in new_dados.serie]...);
+	filter!(:ADSOLPW => n -> n > 0., new_df)
 end
 
 # ╔═╡ 57df07be-89e9-4e62-948a-158f294d1a0c
@@ -309,13 +310,13 @@ end
 md"O pacote OutlierDetection, disponibiliza uma máquina de predição que cria o modelo de predição, este por sua vez é passado ao método de treinamento que efetivamente identifica os pontos. Note que apenas as colunas de dados são passadas, as datas não."
 
 # ╔═╡ e21e3ec9-b89b-404c-82b4-ab2c440c5f1d
-knn_classifier = machine(DeterministicDetector(knn), select(new_df, Not(:DATE))) |> fit!;
+knn_classifier = machine(DeterministicDetector(knn), select(new_df, Not(:DATE))) |> fit!
 
 # ╔═╡ 04df6dda-0441-4d27-88af-f9d814b05f6b
 md"A predição dos *outliers* é feita da seguinte forma."
 
 # ╔═╡ 779b7c7d-e276-44bd-a6ee-5de73dea57cf
-outliers = predict(knn_classifier);
+outliers = predict(knn_classifier)
 
 # ╔═╡ a7979ffd-cf84-474d-a4fa-37fc5da607e2
 md"Aqui adicionamos uma nova coluna aos nossos dados que contem a categoria de cada linha, ou seja, se o ponto em questão é um *outlier* ou normal."
@@ -336,7 +337,7 @@ end
 md"A data frame `df_new` agora contém os dados e as categorias de cada linha."
 
 # ╔═╡ 49f3ad0c-280a-4ce3-9529-741cf495d7af
-first(df_new, 5)
+first(df_new, 50)
 
 # ╔═╡ d6dc8762-8bd9-4977-934d-ba2fb0b97151
 md"Distinguindo graficamente o trabalho da máquina de predição de *outliers."
